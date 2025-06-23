@@ -1,0 +1,4 @@
+Checks: 'cppcoreguidelines-*,modernize-*,bugprone-*,readability-*,misc-inefficient-algorithm'
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+FormatStyle:     google
