@@ -1,12 +1,10 @@
 ﻿// Othello.cpp : Defines the entry point for the application.
 //
-
-#include "Othello.h"
+#include "view/tui.hpp"
+#include <iostream>
 
 using namespace std;
 
-auto main() -> int
-{
-	cout << "Hello CMake." << endl;
+int main() {
 	return 0;
 }
