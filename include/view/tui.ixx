@@ -4,5 +4,5 @@ module;
 export module tui;
 export import board;
 
-export void printBoard(OthelloBoard board);
+export void printBoard(OthelloBoard board, Player player);
 

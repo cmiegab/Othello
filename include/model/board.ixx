@@ -51,8 +51,10 @@ export class OthelloBoard {
 public:
     OthelloBoard();
 	[[nodiscard]] BitBoard generateMoves(Player& player) const;
+	[[nodiscard]] void setMoves(Player& player, size_t idx);
 	[[nodiscard]] const BitBoard& getBlackPieces() const { return m_black; };
 	[[nodiscard]] const BitBoard& getWhitePieces() const { return m_white; };
+
 
 private:
 	BitBoard shift(BitBoard& bitboard, Direction direction) const;
