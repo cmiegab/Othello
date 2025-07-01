@@ -3,11 +3,7 @@
 #
 
 # Global CMake settings
-cmake_minimum_required (VERSION 4.0)
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+cmake_minimum_required (VERSION 3.31)
 
 project (
 	Othello
@@ -15,30 +11,39 @@ project (
 	DESCRIPTION "Othello game implementation"
 )
 
-# Add source to this project's executable.
-add_executable (Othello)
-# Only for legacy includes
-target_include_directories(Othello PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_sources(Othello
-    PRIVATE
-        src/model/board.cpp
-        src/controller/controller.cpp
-        src/view/tui.cpp
-    PUBLIC
-        include/model/board.cppm
-)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CXX_SCAN_FOR_MODULES ON)
 
-
-# MVSC specific settings
+# MSVC specific settings
 if(MSVC)
-  add_compile_options(/W4)
+  add_compile_options(/std:c++latest /W4)
   # Enable Hot Reload for MSVC compilers if supported.
   if (POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
   endif()
 endif()
+
+
+# Add source to this project's executable.
+add_executable (Othello)
+# Only for legacy includes
+target_include_directories(Othello PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_sources(Othello
+  PUBLIC
+    FILE_SET CXX_MODULES FILES
+      "include/model/board.ixx"
+      "include/view/tui.ixx"
+      "include/controller/controller.ixx"
+    PRIVATE
+        src/model/board.cpp
+        src/controller/controller.cpp
+        src/view/tui.cpp
+        othello.cpp
+)
+
 
 
 # If Doxygen is found, configure the Doxyfile and create a custom target
@@ -62,14 +67,20 @@ FetchContent_Declare(
   URL https://github.com/google/googletest/archive/refs/heads/main.zip
 )
 FetchContent_MakeAvailable(googletest)
-enable_testing()
-
+#enable_testing()
+file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
 if(TARGET gtest_main) 
-    add_executable(unit_tests tests/unit_tests.cpp)
+    add_executable(unit_tests ${TEST_SOURCES})
+    target_sources(unit_tests
+        PUBLIC
+            FILE_SET CXX_MODULES FILES
+            "include/model/board.ixx"
+    )
     target_link_libraries(unit_tests gtest_main)
     include(GoogleTest)
     gtest_discover_tests(unit_tests)
     # Silence clang-tidy warnings from googletest
+    set_target_properties(unit_tests PROPERTIES CXX_CLANG_TIDY "")
     set_target_properties(gtest PROPERTIES CXX_CLANG_TIDY "")
     set_target_properties(gtest_main PROPERTIES CXX_CLANG_TIDY "")
     set_target_properties(gmock PROPERTIES CXX_CLANG_TIDY "")
