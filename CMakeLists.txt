@@ -66,8 +66,9 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/heads/main.zip
 )
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-#enable_testing()
+enable_testing()
 file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
 if(TARGET gtest_main) 
     add_executable(unit_tests ${TEST_SOURCES})
@@ -75,6 +76,8 @@ if(TARGET gtest_main)
         PUBLIC
             FILE_SET CXX_MODULES FILES
             "include/model/board.ixx"
+        PRIVATE
+            src/model/board.cpp
     )
     target_link_libraries(unit_tests gtest_main)
     include(GoogleTest)

@@ -12,12 +12,6 @@ export using BitBoard = std::bitset<BITBOARD_SIZE>;
 
 export enum class Player { WHITE, BLACK };
 
-export enum class CellState {
-	EMPTY = 0,
-	WHITE = 1,
-	BLACK = 2
-};
-
 export enum class Direction {
 	NORTH = -BITBOARD_WIDTH,
 	NORTH_EAST = -BITBOARD_WIDTH + 1,
@@ -41,23 +35,35 @@ export constexpr std::array<Direction, NUM_DIRECTIONS> Directions = {
 };
 
 
-
-// AvoidWrap masks around during shift operations
-export constexpr BitBoard VERT_MASK{ 0x00FFFFFFFFFFFF00 };
-export constexpr BitBoard HORI_MASK{ 0x7E7E7E7E7E7E7E7E };
-export constexpr BitBoard EDGE_MASK{ 0x007E7E7E7E7E7E00 };
-
 export class OthelloBoard {
 public:
     OthelloBoard();
-	[[nodiscard]] BitBoard generateMoves(Player& player) const;
-	[[nodiscard]] void setMoves(Player& player, size_t idx);
-	[[nodiscard]] const BitBoard& getBlackPieces() const { return m_black; };
-	[[nodiscard]] const BitBoard& getWhitePieces() const { return m_white; };
+	[[nodiscard]] BitBoard genMoves(Player& player) const;
+	[[nodiscard]] void makeMove(Player& player, size_t idx);
+	bool hasValidMove(const BitBoard& moves) const;
+	bool isValidMove(const BitBoard& moves, size_t idx) const;
 
+
+	BitBoard getPlayerPieces(Player& player) const;
+	BitBoard getOpponentPieces(Player& player) const;
+	BitBoard getEmptrySpaces() const;
+	std::tuple<size_t, size_t> getScore() const { return m_score; };
+	BitBoard getVerticalMask() const { return verticalMask; }
+	BitBoard getHorizontalMask() const { return horizontalMask; };
+	BitBoard getEdgeMask() const { return edgeMask; }
+
+	
 
 private:
 	BitBoard shift(BitBoard& bitboard, Direction direction) const;
+	BitBoard floodFill(const BitBoard& mask, const BitBoard& pieces, Direction direction) const;
+	size_t bitIndex(size_t row, size_t col) const;
+
+	BitBoard verticalMask{ 0x00FFFFFFFFFFFF00 };
+	BitBoard horizontalMask{ 0x7E7E7E7E7E7E7E7E };
+	BitBoard edgeMask{ 0x007E7E7E7E7E7E00 };
+
+	std::tuple<size_t, size_t> m_score = std::tuple{ m_black.count(), m_white.count() };
     BitBoard m_black;
     BitBoard m_white;
 };
