@@ -99,7 +99,7 @@ void OthelloBoard::makeMove(Player& player, size_t idx) {
 	opponentPieces ^= captured_disks;
 	m_black = (player == Player::BLACK) ? playerPieces : opponentPieces;
 	m_white = (player == Player::WHITE) ? playerPieces : opponentPieces;
-	m_score = std::tuple{ m_black.count(), m_white.count() };
+	//m_score = std::tuple{ m_black.count(), m_white.count() };
 }
 
 /**
@@ -151,6 +151,11 @@ BitBoard OthelloBoard::getEmptrySpaces() const
 {
 	BitBoard occupied = m_black | m_white;
 	return occupied.flip();
+}
+
+std::tuple<size_t, size_t> OthelloBoard::getScore() const
+{
+	return std::tuple{ m_black.count(), m_white.count() };
 }
 
 

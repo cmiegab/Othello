@@ -2,7 +2,9 @@
 //
 import controller;
 
-int main(int argc, char* argv[]) {
+int main() {
+	Controller controller;
+	controller.startGame();
 	//Controller controller(argc, argv);
 	//controller.startGame();
 	return 0;

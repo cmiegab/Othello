@@ -2,6 +2,9 @@ module;
 #include <iostream>
 #include <optional>
 #include <string>
+#include <ranges>
+#include <algorithm>
+#include <unordered_map>
 //#include <tuple>
 module tui;
 
@@ -14,10 +17,13 @@ void TUIView::showHelp() {
 		<< "Commands:\n"
 		<< "  h or help - Show this help\n"
 		<< "  q or quit - Exit the game\n\n"
+		<< "  s or save - Save the game state\n"
+		<< "  l or load - Load a saved game state\n"
 		<< "Board layout:\n"
 		<< "  Columns: A-H (left to right)\n"
 		<< "  Rows: 1-8 (top to bottom)\n"
 		<< "  Symbols: 'B' = Black, 'W' = White, '*' = Valid move, '.' = Empty\n"
+		<< "Example move: 'D3' or 'd3' (Column D, Row 3)\n"
 		<< "========================\n\n";
 }
 
@@ -61,56 +67,61 @@ void TUIView::displayScore(const OthelloBoard& board)
 	std::cout << "Scores - Black: " << blackScore << ", White: " << whiteScore << "\n";
 }
 
-void TUIView::displayMessage(const std::string& message)
+ParsedCommand TUIView::parseCommandLineInput(const std::string& input)
 {
-	std::cout << message << "\n";
-}
-
-void TUIView::displayGameOver()
-{
+	ParsedCommand command;
+	command.type = CommandType::INVALID; // Default to invalid command
+	command.moveIndex = std::nullopt; // Default to no move index
 	
+	std::string lowerInput = input;
+	std::transform(lowerInput.begin(), lowerInput.end(), lowerInput.begin(), ::tolower);
+
+	static const std::unordered_map<std::string, CommandType> commandMap = {
+		{"h", CommandType::HELP},
+		{"help", CommandType::HELP},
+		{"q", CommandType::QUIT},
+		{"quit", CommandType::QUIT},
+		{"s", CommandType::SAVE},
+		{"save", CommandType::SAVE},
+		{"l", CommandType::LOAD},
+		{"load", CommandType::LOAD},
+	};
+	auto it = commandMap.find(lowerInput);
+	if (lowerInput.size() == 2 &&
+		lowerInput[0] >= 'a' && lowerInput[0] <= 'h' &&
+		lowerInput[1] >= '1' && lowerInput[1] <= '8') {
+		command.type = CommandType::MOVE;
+		command.moveIndex = parseBoardPosition(lowerInput);
+	}
+	else if (it != commandMap.end()) {
+		command.type = it->second;
+	}
+	else {
+		command.type = CommandType::INVALID;
+	}
+	return command;
 }
 
-std::string TUIView::getUserInput()
+std::optional<size_t> TUIView::parseBoardPosition(const std::string& position)
+{
+	size_t row = static_cast<size_t>(position[1] - '1'); // Convert '1'-'8' to 0-7
+	size_t col = static_cast<size_t>(position[0] - 'a'); // Convert 'a'-'h' to 0-7
+	return (row * BITBOARD_WIDTH + col); // Calculate the bit index
+}
+
+std::string TUIView::getPlayerInput()
 {
 	std::string input;
-	std::cout << "Enter your move (e.g., 'A1', 'B2', or 'h' for help): ";
+	std::cout << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): ";
 	std::getline(std::cin, input);
 	return input;
 }
 
-std::optional<size_t> TUIView::parseMove(const std::string& move) const
-{
-
-	return std::optional<size_t>();
-}
-
 /*
-
-std::optional<size_t> Controller::parseMove(const std::string& move) const
-{
-	char col{};
-	char row{};
-	if (std::isalpha(move[0]) && std::isdigit(move[1])) {
-		col = move[0];
-		row = move[1];
-	}
-	else if (std::isdigit(move[0]) && std::isalpha(move[1])) {
-		col = move[1];
-		row = move[0];
-	}
-	else {
-		return std::nullopt; // Invalid format
-	}
-	size_t colIndex = col - 'a'; // Convert 'a'-'h' to 0-7
-	size_t rowIndex = row - '1'; // Convert '1'-'8' to 0-7
-	if (colIndex < BITBOARD_WIDTH && rowIndex < BITBOARD_WIDTH) {
-		return rowIndex * BITBOARD_WIDTH + colIndex; // Convert to bit index
-	}
-	else
-	{
-		return std::nullopt; // Out of bounds
-	}
+std::string TUIView::getPlayerInput() {
+	std::string input;
+	std::cout << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): ";
+	std::getline(std::cin, input);
+	return input;
 }
-
 */

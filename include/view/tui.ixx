@@ -2,8 +2,23 @@
 module;
 #include <iostream>
 #include <optional>
+#include <string>
 export module tui;
 export import board;
+
+export enum class CommandType {
+	HELP,
+	QUIT,
+	SAVE,
+	LOAD,
+	MOVE,
+	INVALID
+};
+
+export struct ParsedCommand {
+	CommandType type;
+	std::optional<size_t> moveIndex; // Used for MOVE command
+};
 
 export class TUIView {
 public:
@@ -11,9 +26,8 @@ public:
 	void updateBoard(const OthelloBoard& board, Player player);
 	void displayCurrentPlayer(Player player);
 	void displayScore(const OthelloBoard& board);
-	void displayMessage(const std::string& message);
-	void displayGameOver();
-	std::string getUserInput();
-	std::optional<size_t> parseMove(const std::string& move) const;
+	ParsedCommand parseCommandLineInput(const std::string& input);
+	std::optional<size_t> parseBoardPosition(const std::string& position);
+	std::string getPlayerInput();
 };
 

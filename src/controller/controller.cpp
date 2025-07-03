@@ -3,78 +3,113 @@ import controller;
 #include <optional>
 #include <string>
 
-/*
-Controller::Controller() : m_board{}, m_currentPlayer{Player::BLACK} {
+Controller::Controller() : 
+	m_board(std::make_unique<OthelloBoard>()),
+	m_view(std::make_unique<TUIView>()),
+	m_currentPlayer(Player::BLACK),
+	m_gameRunning(true) {
 }
 
-void Controller::switchPlayer() {
-	m_currentPlayer = (m_currentPlayer == Player::BLACK) ? Player::WHITE : Player::BLACK;
+void Controller::startGame()
+{
+	m_view->showHelp();
+	gameLoop();
 }
 
-
-void Controller::startGame() {
-	std::cout << "Starting Othello game...\n";
-	printHelp();
-	while(m_gameRunning) {
+void Controller::gameLoop()
+{
+	while (m_gameRunning) {
 		updateDisplay();
-		std::cout << "\nCurrent player: " << (m_currentPlayer == Player::BLACK ? "BLACK (b)" : "WHITE (w)") << "\n";
-		std::cout << "Enter move (e.g., 'a1', '1a', '1A') or command ('h' for help, 'q' to quit): ";
-		std::string input;
-		std::getline(std::cin, input);
-
-		for (auto& c : input) {
-			c = std::tolower(c); // Normalize input to lowercase
-		}
-
-		if (input == "q" || input == "quit") {
-			m_gameRunning = false;
-			std::cout << "Exiting the game.\n";
-			break;
-		} else if (input == "h" || input == "help") {
-			m_config.showHelp = true;
-			continue;
-		}
-
-
-		if (m_config.showHelp) {
-			printHelp();
-			m_config.showHelp = false; // Reset after showing help
-		}
-		std::string input;
-		std::cout << "Player " << (m_currentPlayer == Player::BLACK ? "Black" : "White") << ", enter your move (e.g., A1, B2) or 'h' for help: ";
-		std::getline(std::cin, input);
-		if (input == "q" || input == "quit") {
-			m_gameRunning = false;
-			break;
-		} else if (input == "h" || input == "help") {
-			m_config.showHelp = true;
-			continue;
-		}
-		else {
-			auto position = parseMove(input);
-			if (position.has_value()) {
-				if (makeMove(position.value())) {
-					switchPlayer();
-				} else {
-					std::cout << "Invalid move. Try again.\n";
-				}
-			} else {
-				std::cout << "Invalid input format. Please enter a valid move (e.g., A1, B2).\n";
+		BitBoard validMoves = m_board->genMoves(m_currentPlayer);
+		if (!m_board->hasValidMove(validMoves)) {
+			switchPlayer();
+			validMoves = m_board->genMoves(m_currentPlayer);
+			if (!m_board->hasValidMove(validMoves)) {
+				m_gameRunning = false;
+				break;
 			}
-
+			// Previous player had no valid moves. Switching t
 		}
-		if (isGameOver()) {
-			updateDisplay();
-			std::cout << "Final Score - Black: " << std::get<0>(m_score) << ", White: " << std::get<1>(m_score) << "\n";
-		}
+		m_view->displayCurrentPlayer(m_currentPlayer);
+		std::string input = m_view->getPlayerInput();
+		ParsedCommand command = m_view->parseCommandLineInput(input);
+		handleCommand(command);
+	}
+	if (checkGameOver()) {
+		m_view->displayScore(*m_board);
 	}
 
 }
 
+void Controller::handleCommand(const ParsedCommand& command) {
+    switch (command.type) {
+    case CommandType::HELP:
+        m_view->showHelp();
+        break;
 
-bool Controller::isGameOver() const {
-	// Check if there are no valid moves left for both players
-	return 0;
+    case CommandType::QUIT:
+        m_gameRunning = false;
+        std::cout << "Thanks for playing!\n";
+        break;
+
+    case CommandType::SAVE:
+        std::cout << "Save functionality not yet implemented.\n";
+        break;
+
+    case CommandType::LOAD:
+        std::cout << "Load functionality not yet implemented.\n";
+        break;
+
+    case CommandType::MOVE:
+        if (command.moveIndex.has_value()) {
+            makeMove(command.moveIndex.value());
+        }
+        else {
+			std::cout << "Invalid Input.\n";
+        }
+        break;
+
+    case CommandType::INVALID:
+		std::cout << "InvalidInput.\n";
+        break;
+    }
 }
 
-*/
+void Controller::makeMove(size_t idx) {
+    // Generate valid moves for current player
+    BitBoard validMoves = m_board->genMoves(m_currentPlayer);
+
+    // Check if the move is valid
+    if (!m_board->isValidMove(validMoves, idx)) {
+		std::cout << "Invalid move. Please try again.\n";
+        return;
+    }
+
+    // Make the move
+    m_board->makeMove(m_currentPlayer, idx);
+
+    // Switch to the other player
+    switchPlayer();
+}
+
+void Controller::switchPlayer() {
+    m_currentPlayer = (m_currentPlayer == Player::BLACK) ? Player::WHITE : Player::BLACK;
+}
+
+void Controller::updateDisplay() {
+    // Display the board
+    m_view->updateBoard(*m_board, m_currentPlayer);
+
+    // Display current scores
+    m_view->displayScore(*m_board);
+}
+
+bool Controller::checkGameOver() {
+    // Check if either player has valid moves
+	Player blackPlayer = Player::BLACK;
+	Player whitePlayer = Player::WHITE;
+    BitBoard blackMoves = m_board->genMoves(blackPlayer);
+    BitBoard whiteMoves = m_board->genMoves(whitePlayer);
+
+    return !m_board->hasValidMove(blackMoves) && !m_board->hasValidMove(whiteMoves);
+}
