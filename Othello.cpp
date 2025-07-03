@@ -3,9 +3,9 @@
 import controller;
 
 int main() {
-	Controller controller;
+	OthelloBoard board;
+	TUIView view;
+	Controller controller(board, view);
 	controller.startGame();
-	//Controller controller(argc, argv);
-	//controller.startGame();
 	return 0;
 }

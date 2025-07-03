@@ -1,9 +1,7 @@
 module;
 #include <bitset>
 #include <iostream>
-//import board;
 module board;
-
 
 /**
 * @brief Constructs the Othello board (8x8) with the initial setup. 
@@ -21,7 +19,7 @@ OthelloBoard::OthelloBoard() {
 * @param player The player for whom to generate moves (WHITE or BLACK).
 * @return A BitBoard representing all possible moves for the player.
 */
-BitBoard OthelloBoard::genMoves(Player& player) const {
+BitBoard OthelloBoard::genMoves(Player player) const {
     BitBoard opponentPieces{ getOpponentPieces(player)};
 	BitBoard v_mask{ opponentPieces & OthelloBoard::getVerticalMask() };
     BitBoard h_mask{ opponentPieces & OthelloBoard::getHorizontalMask()};
@@ -60,7 +58,7 @@ BitBoard OthelloBoard::genMoves(Player& player) const {
 * @param idx The index of the move (0-63) corresponding to the board position.
 * @details This function updated both player's pieces and captures opponent's pieces and updates the score.
 */
-void OthelloBoard::makeMove(Player& player, size_t idx) {
+void OthelloBoard::makeMove(Player player, size_t idx) {
 	BitBoard opponentPieces{ getOpponentPieces(player)};
 	BitBoard v_mask{ opponentPieces & OthelloBoard::getVerticalMask() };
 	BitBoard h_mask{ opponentPieces & OthelloBoard::getHorizontalMask() };
@@ -99,7 +97,6 @@ void OthelloBoard::makeMove(Player& player, size_t idx) {
 	opponentPieces ^= captured_disks;
 	m_black = (player == Player::BLACK) ? playerPieces : opponentPieces;
 	m_white = (player == Player::WHITE) ? playerPieces : opponentPieces;
-	//m_score = std::tuple{ m_black.count(), m_white.count() };
 }
 
 /**
@@ -128,7 +125,7 @@ bool OthelloBoard::isValidMove(const BitBoard& moves, size_t idx) const
 * @param player The player for whom to get the pieces (WHITE or BLACK).
 * @return A BitBoard representing the player's pieces.
 */
-BitBoard OthelloBoard::getPlayerPieces(Player& player) const
+BitBoard OthelloBoard::getPlayerPieces(Player player) const
 {
 	return (player == Player::WHITE) ? m_white : m_black;
 }
@@ -138,7 +135,7 @@ BitBoard OthelloBoard::getPlayerPieces(Player& player) const
 * @param player The player for whom to get the opponent's pieces (WHITE or BLACK).
 * @return A BitBoard representing the opponent's pieces.
 */
-BitBoard OthelloBoard::getOpponentPieces(Player& player) const
+BitBoard OthelloBoard::getOpponentPieces(Player player) const
 {
 	return (player == Player::WHITE) ? m_black : m_white;
 }
@@ -183,7 +180,7 @@ BitBoard OthelloBoard::shift(BitBoard& bitboard, Direction direction) const
 * @param direction The direction in which to perform the flood fill.
 * @return A BitBoard representing the result of the flood fill operation.
 */
-BitBoard OthelloBoard::floodFill(const BitBoard& pieces, const BitBoard& mask, Direction direction) const
+BitBoard OthelloBoard::floodFill(const BitBoard& mask, const BitBoard& pieces, Direction direction) const
 {
 	BitBoard tmp = mask & shift(const_cast<BitBoard&>(const_cast<BitBoard&>(pieces)), direction);
 	tmp |= mask & shift(tmp, direction);

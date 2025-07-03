@@ -38,28 +38,30 @@ export constexpr std::array<Direction, NUM_DIRECTIONS> Directions = {
 export class OthelloBoard {
 public:
     OthelloBoard();
-	[[nodiscard]] BitBoard genMoves(Player& player) const;
-	void makeMove(Player& player, size_t idx);
+	[[nodiscard]] BitBoard genMoves(Player player) const;
+	void makeMove(Player player, size_t idx);
 	[[nodiscard]] bool hasValidMove(const BitBoard& moves) const;
 	[[nodiscard]] bool isValidMove(const BitBoard& moves, size_t idx) const;
 
+	[[nodiscard]] BitBoard getPlayerPieces(Player player) const;
+	[[nodiscard]] BitBoard getOpponentPieces(Player player) const;
+	[[nodiscard]] const BitBoard& getBlackPieces() const { return m_black; };
+	[[nodiscard]] const BitBoard& getWhitePieces() const { return m_white; };
 
-	[[nodiscard]] BitBoard getPlayerPieces(Player& player) const;
-	[[nodiscard]] BitBoard getOpponentPieces(Player& player) const;
 	[[nodiscard]] BitBoard getEmptrySpaces() const;
 	[[nodiscard]] std::tuple<size_t, size_t> getScore() const;
-	[[nodiscard]] BitBoard getVerticalMask() const { return verticalMask; }
-	[[nodiscard]] BitBoard getHorizontalMask() const { return horizontalMask; };
-	[[nodiscard]] BitBoard getEdgeMask() const { return edgeMask; }
+	[[nodiscard]] const BitBoard& getVerticalMask() const { return verticalMask; }
+	[[nodiscard]] const BitBoard& getHorizontalMask() const { return horizontalMask; };
+	[[nodiscard]] const BitBoard& getEdgeMask() const { return edgeMask; }
 
 private:
 	BitBoard shift(BitBoard& bitboard, Direction direction) const;
 	BitBoard floodFill(const BitBoard& mask, const BitBoard& pieces, Direction direction) const;
 	size_t bitIndex(size_t row, size_t col) const;
 
-	BitBoard verticalMask{ 0x00FFFFFFFFFFFF00 };
-	BitBoard horizontalMask{ 0x7E7E7E7E7E7E7E7E };
-	BitBoard edgeMask{ 0x007E7E7E7E7E7E00 };
+	static constexpr BitBoard verticalMask{ 0x00FFFFFFFFFFFF00 };
+	static constexpr BitBoard horizontalMask{ 0x7E7E7E7E7E7E7E7E };
+	static constexpr BitBoard edgeMask{ 0x007E7E7E7E7E7E00 };
 
     BitBoard m_black;
     BitBoard m_white;

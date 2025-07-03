@@ -10,17 +10,18 @@ export import tui;
 
 export class Controller {
 public:
-	Controller();
+	Controller(OthelloBoard& board, TUIView& view);
 	void startGame();
 private:
+	OthelloBoard& m_board;
+	TUIView& m_view;
+	Player m_currentPlayer;
+	bool m_gameRunning;
+
 	void gameLoop();
 	void handleCommand(const ParsedCommand& command);
 	void makeMove(size_t idx);
 	void switchPlayer();
-	void updateDisplay();
+	void updateDisplay(const BitBoard& moves);
 	bool checkGameOver();
-	std::unique_ptr<OthelloBoard> m_board;
-	std::unique_ptr<TUIView> m_view;
-	Player m_currentPlayer;
-	bool m_gameRunning;
 };

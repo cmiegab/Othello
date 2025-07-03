@@ -23,9 +23,10 @@ export struct ParsedCommand {
 export class TUIView {
 public:
 	void showHelp();
-	void updateBoard(const OthelloBoard& board, Player player);
+	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves);
 	void displayCurrentPlayer(Player player);
 	void displayScore(const OthelloBoard& board);
+	void displaySkip(Player player);
 	ParsedCommand parseCommandLineInput(const std::string& input);
 	std::optional<size_t> parseBoardPosition(const std::string& position);
 	std::string getPlayerInput();

@@ -27,13 +27,11 @@ void TUIView::showHelp() {
 		<< "========================\n\n";
 }
 
-void TUIView::updateBoard(const OthelloBoard& board, Player player)
+void TUIView::updateBoard(const OthelloBoard& board, const BitBoard& validMoves)
 {
-	Player blackPlayer = Player::BLACK;
-	Player whitePlayer = Player::WHITE;
-	BitBoard black = board.getPlayerPieces(blackPlayer);
-	BitBoard white = board.getPlayerPieces(whitePlayer);
-	auto moves = board.genMoves(player);
+	BitBoard black = board.getBlackPieces();
+	BitBoard white = board.getWhitePieces();
+
 	std::cout << std::format("  A B C D E F G H");
 	for (int bit{}; bit < BITBOARD_SIZE; ++bit) {
 		if (bit % BITBOARD_WIDTH == 0) {
@@ -45,7 +43,7 @@ void TUIView::updateBoard(const OthelloBoard& board, Player player)
 		else if (white[bit] == 1) {
 			std::cout << 'W';
 		}
-		else if (moves[bit] == 1) {
+		else if (validMoves[bit] == 1) {
 			std::cout << '*';
 		}
 		else {
@@ -65,6 +63,12 @@ void TUIView::displayScore(const OthelloBoard& board)
 	size_t blackScore = std::get<0>(board.getScore());
 	size_t whiteScore = std::get<1>(board.getScore());
 	std::cout << "Scores - Black: " << blackScore << ", White: " << whiteScore << "\n";
+}
+
+void TUIView::displaySkip(Player player)
+{
+	std::cout << "\n*** " << (player == Player::BLACK ? "Black" : "White")
+		<< " player has no valid moves and must skip their turn! ***\n\n";
 }
 
 ParsedCommand TUIView::parseCommandLineInput(const std::string& input)
