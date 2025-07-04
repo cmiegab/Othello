@@ -34,15 +34,20 @@ target_include_directories(Othello PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_sources(Othello
   PUBLIC
     FILE_SET CXX_MODULES FILES
-      "include/model/board.ixx"
-      "include/view/tui.ixx"
-      "include/controller/controller.ixx"
+      "include/model/board.cppm"
+      "include/view/tui.cppm"
+      "include/repository/repository.cppm"
+      "include/repository/file_repository.cppm"
+      "include/repository/db_repository.cppm"
+      "include/controller/controller.cppm"
     PRIVATE
         src/model/board.cpp
         src/controller/controller.cpp
         src/view/tui.cpp
+        src/repository/db_repository.cpp 
+        src/repository/file_repository.cpp
         othello.cpp
-)
+ )
 
 
 
@@ -75,7 +80,7 @@ if(TARGET gtest_main)
     target_sources(unit_tests
         PUBLIC
             FILE_SET CXX_MODULES FILES
-            "include/model/board.ixx"
+            "include/model/board.cppm"
         PRIVATE
             src/model/board.cpp
     )

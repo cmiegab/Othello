@@ -1,12 +1,13 @@
 import controller;
 import board;
 import tui;
+import repository;
 #include <iostream>
 #include <optional>
 #include <string>
 
 
-Controller::Controller(OthelloBoard& board, TUIView& view) : m_board(board), m_view(view), m_currentPlayer(Player::BLACK), m_gameRunning(true)
+Controller::Controller(OthelloBoard& board, TUIView& view, std::unique_ptr<IRepository> repository) : m_board(board), m_view(view), m_repository(std::move(repository)), m_gameRunning(true)
 {
 }
 
@@ -18,10 +19,10 @@ void Controller::startGame()
 void Controller::gameLoop()
 {
 	while (m_gameRunning) {
-		BitBoard validMoves = m_board.genMoves(m_currentPlayer);
+		BitBoard validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 		if (!m_board.hasValidMove(validMoves)) {
-			switchPlayer();
-			validMoves = m_board.genMoves(m_currentPlayer);
+			m_board.switchPlayer();
+			validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 			if (!m_board.hasValidMove(validMoves)) {
 				m_gameRunning = false;
 				break;
@@ -50,11 +51,11 @@ void Controller::handleCommand(const ParsedCommand& command) {
         break;
 
     case CommandType::SAVE:
-        std::cout << "Save functionality not yet implemented.\n";
+		saveGame();
         break;
 
     case CommandType::LOAD:
-        std::cout << "Load functionality not yet implemented.\n";
+		loadGame();
         break;
 
     case CommandType::MOVE:
@@ -74,7 +75,7 @@ void Controller::handleCommand(const ParsedCommand& command) {
 
 void Controller::makeMove(size_t idx) {
     // Generate valid moves for current player
-    BitBoard validMoves = m_board.genMoves(m_currentPlayer);
+    BitBoard validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 
     // Check if the move is valid
     if (!m_board.isValidMove(validMoves, idx)) {
@@ -83,14 +84,10 @@ void Controller::makeMove(size_t idx) {
     }
 
     // Make the move
-    m_board.makeMove(m_currentPlayer, idx);
+    m_board.makeMove(m_board.getCurrentPlayer(), idx);
 
     // Switch to the other player
-    switchPlayer();
-}
-
-void Controller::switchPlayer() {
-    m_currentPlayer = (m_currentPlayer == Player::BLACK) ? Player::WHITE : Player::BLACK;
+    m_board.switchPlayer();
 }
 
 void Controller::updateDisplay(const BitBoard& moves) {
@@ -98,7 +95,7 @@ void Controller::updateDisplay(const BitBoard& moves) {
     system("cls");
     m_view.updateBoard(m_board, moves);
 	// Display the current player
-	m_view.displayCurrentPlayer(m_currentPlayer);
+	m_view.displayCurrentPlayer(m_board.getCurrentPlayer());
     // Display current scores
     m_view.displayScore(m_board);
     
@@ -112,4 +109,31 @@ bool Controller::checkGameOver() {
     BitBoard whiteMoves = m_board.genMoves(whitePlayer);
 
     return !m_board.hasValidMove(blackMoves) && !m_board.hasValidMove(whiteMoves);
+}
+
+void Controller::saveGame()
+{
+    GameState state = getCurrentGameState();
+    m_repository->saveGame(state);
+}
+
+void Controller::loadGame()
+{
+    GameState state = m_repository->loadGame();
+    setGameState(state);
+}
+
+GameState Controller::getCurrentGameState() const
+{
+    return GameState{
+        m_board.getCurrentPlayer(),
+        m_board.getWhitePieces(),
+        m_board.getBlackPieces()
+       };
+}
+
+void Controller::setGameState(const GameState& state) const
+{
+	m_board.setCurrentPlayer(state.currentPlayer);
+	m_board.setState(state.blackPieces, state.whitePieces);
 }

@@ -8,6 +8,7 @@ module board;
 * The initial setup places two black and two white pieces in the center of the board.
 */
 OthelloBoard::OthelloBoard() {
+  m_currentPlayer = Player::BLACK;
   m_white.set(bitIndex(3, 3));
   m_black.set(bitIndex(3, 4));
   m_black.set(bitIndex(4, 3));
@@ -155,6 +156,17 @@ std::tuple<size_t, size_t> OthelloBoard::getScore() const
 	return std::tuple{ m_black.count(), m_white.count() };
 }
 
+
+void OthelloBoard::switchPlayer()
+{
+	m_currentPlayer = static_cast<Player>(std::to_underlying(m_currentPlayer) ^ 1);
+}
+
+void OthelloBoard::setState(const BitBoard& black, const BitBoard& white)
+{
+	m_black = black;
+	m_white = white;
+}
 
 /**
 * @brief Shifts the given BitBoard in the specified direction.

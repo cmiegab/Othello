@@ -7,21 +7,28 @@ module;
 export module controller;
 export import board;
 export import tui;
+export import repository;
 
 export class Controller {
 public:
-	Controller(OthelloBoard& board, TUIView& view);
+	Controller(OthelloBoard& board, TUIView& view, std::unique_ptr<IRepository> repository);
 	void startGame();
 private:
 	OthelloBoard& m_board;
 	TUIView& m_view;
-	Player m_currentPlayer;
+	std::unique_ptr<IRepository> m_repository;
 	bool m_gameRunning;
 
 	void gameLoop();
 	void handleCommand(const ParsedCommand& command);
 	void makeMove(size_t idx);
-	void switchPlayer();
 	void updateDisplay(const BitBoard& moves);
 	bool checkGameOver();
+
+	// Save and load methods
+	void saveGame();
+	void loadGame();
+	GameState getCurrentGameState() const;
+	void setGameState(const GameState& state) const;
+
 };

@@ -52,7 +52,13 @@ public:
 	[[nodiscard]] std::tuple<size_t, size_t> getScore() const;
 	[[nodiscard]] const BitBoard& getVerticalMask() const { return verticalMask; }
 	[[nodiscard]] const BitBoard& getHorizontalMask() const { return horizontalMask; };
-	[[nodiscard]] const BitBoard& getEdgeMask() const { return edgeMask; }
+	[[nodiscard]] const BitBoard& getEdgeMask() const { return edgeMask; };
+
+	[[nodiscard]] Player getCurrentPlayer() const { return m_currentPlayer; };
+	void setCurrentPlayer(Player player) { m_currentPlayer = player; };
+	void switchPlayer();
+
+	void setState(const BitBoard& black, const BitBoard& white);
 
 private:
 	BitBoard shift(BitBoard& bitboard, Direction direction) const;
@@ -63,6 +69,7 @@ private:
 	static constexpr BitBoard horizontalMask{ 0x7E7E7E7E7E7E7E7E };
 	static constexpr BitBoard edgeMask{ 0x007E7E7E7E7E7E00 };
 
+	Player m_currentPlayer;
     BitBoard m_black;
     BitBoard m_white;
 };
