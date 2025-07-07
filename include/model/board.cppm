@@ -3,6 +3,7 @@ module;
 #include <bitset>
 #include <cstdint>
 #include <array>
+#include <immintrin.h>
 export module board;
 
 export constexpr std::int8_t BITBOARD_WIDTH{ 8 };
@@ -39,7 +40,13 @@ export class OthelloBoard {
 public:
     OthelloBoard();
 	[[nodiscard]] BitBoard genMoves(Player player) const;
+	[[nodiscard]] BitBoard AVX2_genMoves(Player player) const;
+	[[nodiscard]] BitBoard AVX512_genMoves(Player player) const;
+
 	void makeMove(Player player, size_t idx);
+	void AVX2_makeMove(Player player, size_t idx);
+	void AVX512_makeMove(Player player, size_t idx);
+
 	[[nodiscard]] bool hasValidMove(const BitBoard& moves) const;
 	[[nodiscard]] bool isValidMove(const BitBoard& moves, size_t idx) const;
 

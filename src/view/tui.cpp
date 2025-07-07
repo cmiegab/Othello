@@ -25,6 +25,7 @@ void TUIView::showHelp() {
 		<< "  Symbols: 'B' = Black, 'W' = White, '*' = Valid move, '.' = Empty\n"
 		<< "Example move: 'D3' or 'd3' (Column D, Row 3)\n"
 		<< "========================\n\n";
+	std::cin.get(); // Wait for user input to continue
 }
 
 void TUIView::updateBoard(const OthelloBoard& board, const BitBoard& validMoves)
@@ -55,7 +56,7 @@ void TUIView::updateBoard(const OthelloBoard& board, const BitBoard& validMoves)
 
 void TUIView::displayCurrentPlayer(Player player)
 {
-	std::cout << "Current Player: " << (player == Player::BLACK ? "Black" : "White") << "\n";
+	std::cout << "\nCurrent Player: " << (player == Player::BLACK ? "Black" : "White") << "\n";
 }
 
 void TUIView::displayScore(const OthelloBoard& board)
@@ -65,11 +66,44 @@ void TUIView::displayScore(const OthelloBoard& board)
 	std::cout << "Scores - Black: " << blackScore << ", White: " << whiteScore << "\n";
 }
 
-void TUIView::displaySkip(Player player)
+
+void TUIView::messageEndGame()
+{
+	setMessage("Thanks for PLaying! Press any key to exit.");
+}
+
+void TUIView::messageSavingGame()
+{
+	setMessage("Saving game state");
+}
+
+void TUIView::messageLoadGame()
+{
+	setMessage("Game state loaded");
+}
+
+
+void TUIView::messageInvalidInput()
+{
+	setMessage("Invalid input! Please try again.");
+}
+
+void TUIView::setMessage(const std::string& message)
+{
+	m_message = message;
+}
+
+void TUIView::clearMessage()
+{
+	m_message.clear();
+}
+
+void TUIView::messageSkip(Player player)
 {
 	std::cout << "\n*** " << (player == Player::BLACK ? "Black" : "White")
 		<< " player has no valid moves and must skip their turn! ***\n\n";
 }
+
 
 ParsedCommand TUIView::parseCommandLineInput(const std::string& input)
 {
@@ -121,11 +155,9 @@ std::string TUIView::getPlayerInput()
 	return input;
 }
 
-/*
-std::string TUIView::getPlayerInput() {
-	std::string input;
-	std::cout << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): ";
-	std::getline(std::cin, input);
-	return input;
+void TUIView::displayMessage() const
+{
+	if (!m_message.empty()) {
+		std::cout << "*** " << m_message << " ***\n\n";
+	}
 }
-*/

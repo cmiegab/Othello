@@ -53,6 +53,60 @@ BitBoard OthelloBoard::genMoves(Player player) const {
 }
 
 
+BitBoard OthelloBoard::AVX2_genMoves(Player player) const
+{
+	BitBoard opponentPieces{ getOpponentPieces(player) };
+	BitBoard v_mask{ opponentPieces & OthelloBoard::getVerticalMask() };
+	BitBoard h_mask{ opponentPieces & OthelloBoard::getHorizontalMask() };
+	BitBoard e_mask{ opponentPieces & OthelloBoard::getEdgeMask() };
+	__m256i qmask = _mm256_set_epi64x(
+		h_mask.to_ullong(),
+		v_mask.to_ullong(),
+		e_mask.to_ullong(),
+		e_mask.to_ullong()
+	);
+	
+	__m256i qpieces = _mm256_set1_epi64x(getPlayerPieces(player).to_ullong());
+	__m256i qempty = _mm256_set1_epi64x(getEmptrySpaces().to_ullong());
+	// Shift right WEST (1), NORTH (8), NORTH_EAST (7), NORTH_WEST (9)
+	// Shift left: EAST (1), SOUTH (8), SOUTH_WEST (7), SOUTH_EAST (9)
+	__m256i qshift = _mm256_set_epi64x(1, 8, 7, 9);
+
+	// Shift right
+	__m256i qflood = _mm256_and_si256(qmask, _mm256_srlv_epi64(qpieces, qshift));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_srlv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_srlv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_srlv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_srlv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_srlv_epi64(qflood, qshift)));
+
+	__m256i qmoves = _mm256_and_si256(qempty, _mm256_srlv_epi64(qflood, qshift));
+
+	// Shift left
+	qflood = _mm256_and_si256(qmask, _mm256_sllv_epi64(qpieces, qshift));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_sllv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_sllv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_sllv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_sllv_epi64(qflood, qshift)));
+	qflood = _mm256_or_si256(qflood, _mm256_and_si256(qmask, _mm256_sllv_epi64(qflood, qshift)));
+
+	qmoves = _mm256_or_si256(qmoves, _mm256_and_si256(qempty, _mm256_sllv_epi64(qflood, qshift)));
+
+	uint64_t result = 0;
+	result |= _mm256_extract_epi64(qmoves, 0);
+	result |= _mm256_extract_epi64(qmoves, 1);
+	result |= _mm256_extract_epi64(qmoves, 2);
+	result |= _mm256_extract_epi64(qmoves, 3);
+
+	return BitBoard(result);
+}
+
+BitBoard OthelloBoard::AVX512_genMoves(Player player) const
+{
+	return BitBoard();
+}
+
+
 /**
 * @brief Sets the player's move on the board and captures opponent's pieces.
 * @param player The player making the move (WHITE or BLACK).
@@ -98,6 +152,14 @@ void OthelloBoard::makeMove(Player player, size_t idx) {
 	opponentPieces ^= captured_disks;
 	m_black = (player == Player::BLACK) ? playerPieces : opponentPieces;
 	m_white = (player == Player::WHITE) ? playerPieces : opponentPieces;
+}
+
+void OthelloBoard::AVX2_makeMove(Player player, size_t idx)
+{
+}
+
+void OthelloBoard::AVX512_makeMove(Player player, size_t idx)
+{
 }
 
 /**
@@ -194,13 +256,13 @@ BitBoard OthelloBoard::shift(BitBoard& bitboard, Direction direction) const
 */
 BitBoard OthelloBoard::floodFill(const BitBoard& mask, const BitBoard& pieces, Direction direction) const
 {
-	BitBoard tmp = mask & shift(const_cast<BitBoard&>(const_cast<BitBoard&>(pieces)), direction);
-	tmp |= mask & shift(tmp, direction);
-	tmp |= mask & shift(tmp, direction);
-	tmp |= mask & shift(tmp, direction);
-	tmp |= mask & shift(tmp, direction);
-	tmp |= mask & shift(tmp, direction);
-	return tmp;
+	BitBoard flood = mask & shift(const_cast<BitBoard&>(const_cast<BitBoard&>(pieces)), direction);
+	flood |= mask & shift(flood, direction);
+	flood |= mask & shift(flood, direction);
+	flood |= mask & shift(flood, direction);
+	flood |= mask & shift(flood, direction);
+	flood |= mask & shift(flood, direction);
+	return flood;
 }
 
 /**

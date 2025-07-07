@@ -18,7 +18,7 @@ set(CXX_SCAN_FOR_MODULES ON)
 
 # MSVC specific settings
 if(MSVC)
-  add_compile_options(/std:c++latest /W4)
+  add_compile_options(/std:c++latest /W4 /arch:AVX2)
   # Enable Hot Reload for MSVC compilers if supported.
   if (POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)

@@ -21,10 +21,13 @@ void Controller::gameLoop()
 	while (m_gameRunning) {
 		BitBoard validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 		if (!m_board.hasValidMove(validMoves)) {
+			m_view.messageSkip(m_board.getCurrentPlayer());
 			m_board.switchPlayer();
 			validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 			if (!m_board.hasValidMove(validMoves)) {
 				m_gameRunning = false;
+                system("cls");
+                m_view.displayScore(m_board);
 				break;
 			}
 		}
@@ -33,10 +36,6 @@ void Controller::gameLoop()
 		ParsedCommand command = m_view.parseCommandLineInput(input);
 		handleCommand(command);
 	}
-	if (checkGameOver()) {
-		m_view.displayScore(m_board);
-	}
-
 }
 
 void Controller::handleCommand(const ParsedCommand& command) {
@@ -47,7 +46,8 @@ void Controller::handleCommand(const ParsedCommand& command) {
 
     case CommandType::QUIT:
         m_gameRunning = false;
-        std::cout << "Thanks for playing!\n";
+		system("cls");
+		m_view.messageEndGame();
         break;
 
     case CommandType::SAVE:
@@ -63,12 +63,12 @@ void Controller::handleCommand(const ParsedCommand& command) {
             makeMove(command.moveIndex.value());
         }
         else {
-			std::cout << "Invalid Input.\n";
+			m_view.messageInvalidInput();
         }
         break;
 
     case CommandType::INVALID:
-		std::cout << "InvalidInput.\n";
+        m_view.messageInvalidInput();
         break;
     }
 }
@@ -79,7 +79,7 @@ void Controller::makeMove(size_t idx) {
 
     // Check if the move is valid
     if (!m_board.isValidMove(validMoves, idx)) {
-		std::cout << "Invalid move. Please try again.\n";
+		m_view.messageInvalidInput();
         return;
     }
 
@@ -93,6 +93,7 @@ void Controller::makeMove(size_t idx) {
 void Controller::updateDisplay(const BitBoard& moves) {
     // Display the board
     system("cls");
+	m_view.displayMessage();
     m_view.updateBoard(m_board, moves);
 	// Display the current player
 	m_view.displayCurrentPlayer(m_board.getCurrentPlayer());
@@ -101,24 +102,16 @@ void Controller::updateDisplay(const BitBoard& moves) {
     
 }
 
-bool Controller::checkGameOver() {
-    // Check if either player has valid moves
-	Player blackPlayer = Player::BLACK;
-	Player whitePlayer = Player::WHITE;
-    BitBoard blackMoves = m_board.genMoves(blackPlayer);
-    BitBoard whiteMoves = m_board.genMoves(whitePlayer);
-
-    return !m_board.hasValidMove(blackMoves) && !m_board.hasValidMove(whiteMoves);
-}
-
 void Controller::saveGame()
 {
+    m_view.messageSavingGame();
     GameState state = getCurrentGameState();
     m_repository->saveGame(state);
 }
 
 void Controller::loadGame()
 {
+    m_view.messageLoadGame();
     GameState state = m_repository->loadGame();
     setGameState(state);
 }
@@ -127,8 +120,8 @@ GameState Controller::getCurrentGameState() const
 {
     return GameState{
         m_board.getCurrentPlayer(),
-        m_board.getWhitePieces(),
-        m_board.getBlackPieces()
+        m_board.getBlackPieces(),
+        m_board.getWhitePieces()
        };
 }
 

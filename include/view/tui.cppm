@@ -26,9 +26,18 @@ public:
 	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves);
 	void displayCurrentPlayer(Player player);
 	void displayScore(const OthelloBoard& board);
-	void displaySkip(Player player);
+	void messageSkip(Player player);
+	void messageEndGame();
+	void messageSavingGame();
+	void messageLoadGame();
+	void messageInvalidInput();
+	void setMessage(const std::string& message);
+	void displayMessage() const;
+	void clearMessage();
 	ParsedCommand parseCommandLineInput(const std::string& input);
 	std::optional<size_t> parseBoardPosition(const std::string& position);
 	std::string getPlayerInput();
+private:
+	std::string m_message; // Used to store messages for display
 };
 
