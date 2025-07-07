@@ -8,7 +8,7 @@ import db_repository;
 int main() {
 	OthelloBoard board;
 	TUIView view;
-	auto repository = std::make_unique<FileRepository>();
+	auto repository = std::make_unique<DBRepository>();
 	Controller controller(board, view, std::move(repository));
 	controller.startGame();
 	return 0;
