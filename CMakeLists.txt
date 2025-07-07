@@ -7,10 +7,11 @@ cmake_minimum_required (VERSION 3.31)
 
 project (
 	Othello
-	VERSION 0.1
+	VERSION 1.0
 	DESCRIPTION "Othello game implementation"
 )
 
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -29,6 +30,7 @@ endif()
 
 # Add source to this project's executable.
 add_executable (Othello)
+target_link_libraries(Othello PRIVATE unofficial::sqlite3::sqlite3)
 # Only for legacy includes
 target_include_directories(Othello PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_sources(Othello
