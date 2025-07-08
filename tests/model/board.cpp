@@ -2,7 +2,6 @@
 #include <chrono>
 import board;
 
-
 TEST(OthelloBoardTest, InitialSetup) {
 	OthelloBoard board;
 	Player white = Player::WHITE;
@@ -34,7 +33,10 @@ TEST(OthelloBoardTest, ValidMoves) {
 }
 */
 
-
+/*
+*  Test and benchmark the AVX2 implementation of genMoves against the scalar version. 
+* Make sure the AVX2 makro is disabled but still supported. The AVX2 makro 
+* switches the implementation of genMoves to the AVX2 version.
 TEST(OthelloBoardTest, AVX2GenMovesMatchesScalar) {
 	OthelloBoard board;
 
@@ -187,3 +189,4 @@ TEST(OthelloBoardTest, GenMovesVariousStates) {
 
 	std::cout << "==========================================\n" << std::endl;
 }
+*/

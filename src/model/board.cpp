@@ -23,6 +23,9 @@ OthelloBoard::OthelloBoard() {
 * @return A BitBoard representing all possible moves for the player.
 */
 BitBoard OthelloBoard::genMoves(Player player) const {
+#ifdef __AVX2__
+	return AVX2_genMoves(player);
+#else
     BitBoard opponentPieces{ getOpponentPieces(player)};
 	BitBoard v_mask{ opponentPieces & OthelloBoard::getVerticalMask() };
     BitBoard h_mask{ opponentPieces & OthelloBoard::getHorizontalMask()};
@@ -52,6 +55,7 @@ BitBoard OthelloBoard::genMoves(Player player) const {
 		}
 	}
     return moves;
+#endif
 }
 
 
@@ -169,6 +173,9 @@ BitBoard OthelloBoard::AVX512_genMoves(Player player) const
 * @details This function updated both player's pieces and captures opponent's pieces and updates the score.
 */
 void OthelloBoard::makeMove(Player player, size_t idx) {
+#ifdef __AVX2__
+	return AVX2_makeMove(player, idx);
+#else
 	BitBoard opponentPieces{ getOpponentPieces(player)};
 	BitBoard v_mask{ opponentPieces & OthelloBoard::getVerticalMask() };
 	BitBoard h_mask{ opponentPieces & OthelloBoard::getHorizontalMask() };
@@ -207,6 +214,7 @@ void OthelloBoard::makeMove(Player player, size_t idx) {
 	opponentPieces ^= captured_disks;
 	m_black = (player == Player::BLACK) ? playerPieces : opponentPieces;
 	m_white = (player == Player::WHITE) ? playerPieces : opponentPieces;
+#endif
 }
 
 void OthelloBoard::AVX2_makeMove(Player player, size_t idx)

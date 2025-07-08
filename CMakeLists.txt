@@ -24,6 +24,7 @@ if(MSVC)
   check_cxx_compiler_flag("/arch:AVX2" COMPILER_SUPPORTS_AVX2)
   if(COMPILER_SUPPORTS_AVX2)
     add_compile_options(/arch:AVX2)
+    add_definitions(-D__AVX2__)
     add_compile_definitions(HAVE_AVX2_SUPPORT)
     message(STATUS "AVX2 support detected and enabled")
   else()
@@ -47,6 +48,7 @@ target_sources(Othello
   PUBLIC
     FILE_SET CXX_MODULES FILES
       "include/model/board.cppm"
+      "include/view/view.cppm"
       "include/view/tui.cppm"
       "include/repository/repository.cppm"
       "include/repository/file_repository.cppm"
@@ -59,7 +61,7 @@ target_sources(Othello
         src/repository/db_repository.cpp 
         src/repository/file_repository.cpp
         othello.cpp
- )
+)
 
 
 

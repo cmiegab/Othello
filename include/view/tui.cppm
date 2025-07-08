@@ -4,39 +4,25 @@ module;
 #include <optional>
 #include <string>
 export module tui;
-export import board;
+export import view;
 
-export enum class CommandType {
-	HELP,
-	QUIT,
-	SAVE,
-	LOAD,
-	MOVE,
-	INVALID
-};
-
-export struct ParsedCommand {
-	CommandType type;
-	std::optional<size_t> moveIndex; // Used for MOVE command
-};
-
-export class TUIView {
+export class TUIView: public View {
 public:
-	void showHelp();
-	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves);
-	void displayCurrentPlayer(Player player);
-	void displayScore(const OthelloBoard& board);
-	void messageSkip(Player player);
-	void messageEndGame();
-	void messageSavingGame();
-	void messageLoadGame();
-	void messageInvalidInput();
-	void setMessage(const std::string& message);
-	void displayMessage() const;
-	void clearMessage();
-	ParsedCommand parseCommandLineInput(const std::string& input);
-	std::optional<size_t> parseBoardPosition(const std::string& position);
-	std::string getPlayerInput();
+	void showHelp() override;
+	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves) override;
+	void displayCurrentPlayer(Player player) override;
+	void displayScore(const OthelloBoard& board) override;
+	void messageSkip(Player player) override;
+	void messageEndGame() override;
+	void messageSavingGame() override;
+	void messageLoadGame() override;
+	void messageInvalidInput() override;
+	void setMessage(const std::string& message) override;
+	void displayMessage() const override;
+	void clearMessage() override;
+	ParsedCommand parseCommandLineInput(const std::string& input) override;
+	std::optional<size_t> parseBoardPosition(const std::string& position) override;
+	std::string getPlayerInput() override;
 private:
 	std::string m_message; // Used to store messages for display
 };
