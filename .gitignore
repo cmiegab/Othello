@@ -96,3 +96,5 @@ compile_commands.json
 *_qmlcache.qrc
 /.vs
 /out/build/x64-debug
+/build
+/vc140.idb

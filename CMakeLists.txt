@@ -16,10 +16,20 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CXX_SCAN_FOR_MODULES ON)
+include(CheckCXXCompilerFlag)
 
 # MSVC specific settings
 if(MSVC)
-  add_compile_options(/std:c++latest /W4 /arch:AVX2)
+  add_compile_options(/std:c++latest /W4)
+  check_cxx_compiler_flag("/arch:AVX2" COMPILER_SUPPORTS_AVX2)
+  if(COMPILER_SUPPORTS_AVX2)
+    add_compile_options(/arch:AVX2)
+    add_compile_definitions(HAVE_AVX2_SUPPORT)
+    message(STATUS "AVX2 support detected and enabled")
+  else()
+    message(WARNING "AVX2 not supported by the compiler/target architecture")
+  endif()
+
   # Enable Hot Reload for MSVC compilers if supported.
   if (POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
