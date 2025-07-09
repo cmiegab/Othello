@@ -4,7 +4,7 @@ import tui;
 import repository;
 #include <iostream>
 #include <optional>
-#include <string>
+#include <QString>
 
 
 Controller::Controller(OthelloBoard& board, TUIView& view, std::unique_ptr<IRepository> repository) : m_board(board), m_view(view), m_repository(std::move(repository)), m_gameRunning(true)
@@ -31,9 +31,13 @@ void Controller::gameLoop()
 				break;
 			}
 		}
-		updateDisplay(validMoves);
-		std::string input = m_view.getPlayerInput();
+        if (!m_skipDisplayUpdate) {
+            system("cls");
+        }
+        updateDisplay(validMoves);
+		QString input = m_view.getPlayerInput();
 		ParsedCommand command = m_view.parseCommandLineInput(input);
+        m_skipDisplayUpdate = false;
 		handleCommand(command);
 	}
 }
@@ -42,6 +46,7 @@ void Controller::handleCommand(const ParsedCommand& command) {
     switch (command.type) {
     case CommandType::HELP:
         m_view.showHelp();
+		m_skipDisplayUpdate = true;
         break;
 
     case CommandType::QUIT:
@@ -92,7 +97,6 @@ void Controller::makeMove(size_t idx) {
 
 void Controller::updateDisplay(const BitBoard& moves) {
     // Display the board
-    system("cls");
 	m_view.displayMessage();
     m_view.updateBoard(m_board, moves);
 	// Display the current player

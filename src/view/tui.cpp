@@ -87,7 +87,7 @@ void TUIView::messageInvalidInput()
 	setMessage("Invalid input! Please try again.");
 }
 
-void TUIView::setMessage(const std::string& message)
+void TUIView::setMessage(const QString& message)
 {
 	m_message = message;
 }
@@ -105,9 +105,10 @@ void TUIView::messageSkip(Player player)
 }
 
 
-ParsedCommand TUIView::parseCommandLineInput(const std::string& input)
+ParsedCommand TUIView::parseCommandLineInput(const QString& input)
 {
-	QStringList args = QString::fromStdString(input).split(' ');
+	clearMessage();
+	QStringList args = input.split(' ');
 	m_parser.parse(args);
 	ParsedCommand command;
 	command.type = CommandType::INVALID; // Default to invalid command
@@ -129,31 +130,32 @@ ParsedCommand TUIView::parseCommandLineInput(const std::string& input)
 		}
 		else if (firstArg.size() == 2 && firstArg[0].isLetter() && firstArg[1].isDigit()) {
 			command.type = CommandType::MOVE;
-			command.moveIndex = parseBoardPosition(firstArg.toStdString());
+			command.moveIndex = parseBoardPosition(firstArg);
+			setMessage(" set position " + firstArg.toUpper());
 		}
 	}
 	return command;
 }
 
-std::optional<size_t> TUIView::parseBoardPosition(const std::string& position)
+std::optional<size_t> TUIView::parseBoardPosition(const QString& position)
 {
-	size_t row = static_cast<size_t>(position[1] - '1'); // Convert '1'-'8' to 0-7
-	size_t col = static_cast<size_t>(position[0] - 'a'); // Convert 'a'-'h' to 0-7
+	size_t row = static_cast<size_t>(position[1].digitValue() - 1); // Convert '1'-'8' to 0-7
+	size_t col = static_cast<size_t>(position[0].unicode() - 'a'); // Convert 'a'-'h' to 0-7
 	return (row * BITBOARD_WIDTH + col); // Calculate the bit index
 }
 
-std::string TUIView::getPlayerInput()
+QString TUIView::getPlayerInput()
 {
 	QTextStream in(stdin);
 	QTextStream out(stdout);
 	out << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): " << Qt::flush;
-	return in.readLine().toStdString();
+	return in.readLine();
 }
 
 void TUIView::displayMessage() const
 {
-	if (!m_message.empty()) {
+	if (!m_message.isEmpty()) {
 		QTextStream out(stdout);
-		out << "*** " << QString::fromStdString(m_message) << " ***\n\n";
+		out << "*** " << m_message << " ***\n\n";
 	}
 }

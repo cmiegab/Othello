@@ -1,6 +1,6 @@
 module;
 #include <optional>
-#include <string>
+#include <QString>
 export module view;
 export import board;
 
@@ -29,11 +29,11 @@ public:
 	virtual void messageSavingGame() = 0;
 	virtual void messageLoadGame() = 0;
 	virtual void messageInvalidInput() = 0;
-	virtual void setMessage(const std::string& message) = 0;
+	virtual void setMessage(const QString& message) = 0;
 	virtual void displayMessage() const = 0;
 	virtual void clearMessage() = 0;
-	virtual ParsedCommand parseCommandLineInput(const std::string& input) = 0;
-	virtual std::optional<size_t> parseBoardPosition(const std::string& position) = 0;
-	virtual std::string getPlayerInput() = 0;
+	virtual ParsedCommand parseCommandLineInput(const QString& input) = 0;
+	virtual std::optional<size_t> parseBoardPosition(const QString& position) = 0;
+	virtual QString getPlayerInput() = 0;
 	virtual ~View() = default;
 };

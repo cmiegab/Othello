@@ -1,7 +1,7 @@
 module;
 #include <iostream>
 #include <optional>
-#include <string>
+#include <QString>
 export module gui;
 export import view;
 
@@ -16,14 +16,14 @@ public:
 	void messageSavingGame() override;
 	void messageLoadGame() override;
 	void messageInvalidInput() override;
-	void setMessage(const std::string& message) override;
+	void setMessage(const QString& message) override;
 	void displayMessage() const override;
 	void clearMessage() override;
-	ParsedCommand parseCommandLineInput(const std::string& input) override;
-	std::optional<size_t> parseBoardPosition(const std::string& position) override;
-	std::string getPlayerInput() override;
+	ParsedCommand parseCommandLineInput(const QString& input) override;
+	std::optional<size_t> parseBoardPosition(const QString& position) override;
+	QString getPlayerInput() override;
 	~GUIView() override = default;
 private:
-	std::string m_message; // Used to store messages for display
+	QString m_message; // Used to store messages for display
 };
 
