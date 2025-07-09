@@ -98,3 +98,4 @@ compile_commands.json
 /out/build/x64-debug
 /build
 /vc140.idb
+/out/build/debug

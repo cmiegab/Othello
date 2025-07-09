@@ -1,16 +1,12 @@
-// tui.cppm	
 module;
-#include <QCommandLineParser>
-#include <QCoreApplication>
-#include <QTextStream>
+#include <iostream>
 #include <optional>
 #include <string>
-export module tui;
+export module gui;
 export import view;
 
-export class TUIView: public View {
+export class GUIView : public View {
 public:
-	TUIView();
 	void showHelp() override;
 	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves) override;
 	void displayCurrentPlayer(Player player) override;
@@ -26,8 +22,8 @@ public:
 	ParsedCommand parseCommandLineInput(const std::string& input) override;
 	std::optional<size_t> parseBoardPosition(const std::string& position) override;
 	std::string getPlayerInput() override;
+	~GUIView() override = default;
 private:
-	QCommandLineParser m_parser;
 	std::string m_message; // Used to store messages for display
 };
 

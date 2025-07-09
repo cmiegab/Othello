@@ -11,7 +11,9 @@ project (
 	DESCRIPTION "Othello game implementation"
 )
 
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
+
+find_package(Qt6 REQUIRED COMPONENTS Core Quick Gui)
+find_package(SQLite3 REQUIRED)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -41,7 +43,7 @@ endif()
 
 # Add source to this project's executable.
 add_executable (Othello)
-target_link_libraries(Othello PRIVATE unofficial::sqlite3::sqlite3)
+target_link_libraries(Othello PRIVATE SQLite::SQLite3 Qt6::Core Qt6::Gui Qt6::Quick)
 # Only for legacy includes
 target_include_directories(Othello PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_sources(Othello
@@ -49,6 +51,7 @@ target_sources(Othello
     FILE_SET CXX_MODULES FILES
       "include/model/board.cppm"
       "include/view/view.cppm"
+      "include/view/gui.cppm"
       "include/view/tui.cppm"
       "include/repository/repository.cppm"
       "include/repository/file_repository.cppm"
@@ -57,6 +60,7 @@ target_sources(Othello
     PRIVATE
         src/model/board.cpp
         src/controller/controller.cpp
+        src/view/gui.cpp
         src/view/tui.cpp
         src/repository/db_repository.cpp 
         src/repository/file_repository.cpp

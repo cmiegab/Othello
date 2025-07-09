@@ -1,69 +1,68 @@
 module;
-#include <iostream>
+#include <QCommandLineParser>
+#include <QCoreApplication>
+#include <QTextStream>
+#include <QString>
 #include <optional>
 #include <string>
-#include <ranges>
-#include <algorithm>
 #include <unordered_map>
 //#include <tuple>
 module tui;
 
+TUIView::TUIView() {
+	m_parser.setApplicationDescription("Othello Game - QT CLI");
+	m_parser.addHelpOption();
+	m_parser.addOption({ {"q", "quit"}, "Exit the game." });
+	m_parser.addOption({ {"s", "save"}, "Save the game state." });
+	m_parser.addOption({ {"l", "load"}, "Load a saved game state." });
+	m_parser.addPositionalArgument("move", "Enter a move in the format 'A1', 'B2', etc.");
+}
+
 void TUIView::showHelp() {
-	std::cout << "\n=== Othello Game - TUI ===\n"
-		<< "1. Players take turns placing pieces on the board.\n"
-		<< "2. A valid move captures opponent's pieces by sandwiching them.\n"
-		<< "3. The game ends when no valid moves are left for either player.\n"
-		<< "4. The player with the most pieces at the end wins.\n\n"
-		<< "Commands:\n"
-		<< "  h or help - Show this help\n"
-		<< "  q or quit - Exit the game\n\n"
-		<< "  s or save - Save the game state\n"
-		<< "  l or load - Load a saved game state\n"
-		<< "Board layout:\n"
-		<< "  Columns: A-H (left to right)\n"
-		<< "  Rows: 1-8 (top to bottom)\n"
-		<< "  Symbols: 'B' = Black, 'W' = White, '*' = Valid move, '.' = Empty\n"
-		<< "Example move: 'D3' or 'd3' (Column D, Row 3)\n"
-		<< "========================\n\n";
-	std::cin.get(); // Wait for user input to continue
+	QTextStream out(stdout);
+	out << m_parser.helpText() << Qt::endl;
 }
 
 void TUIView::updateBoard(const OthelloBoard& board, const BitBoard& validMoves)
 {
+	QTextStream out(stdout);
 	BitBoard black = board.getBlackPieces();
 	BitBoard white = board.getWhitePieces();
 
-	std::cout << std::format("  A B C D E F G H");
+	out << "  A B C D E F G H";;
 	for (int bit{}; bit < BITBOARD_SIZE; ++bit) {
 		if (bit % BITBOARD_WIDTH == 0) {
-			std::cout << '\n' << (bit / BITBOARD_WIDTH) + 1 << ' ';
+			out << '\n' << (bit / BITBOARD_WIDTH) + 1 << ' ';
 		}
 		if (black[bit] == 1) {
-			std::cout << 'B';
+			out << 'B';
 		}
 		else if (white[bit] == 1) {
-			std::cout << 'W';
+			out << 'W';
 		}
 		else if (validMoves[bit] == 1) {
-			std::cout << '*';
+			out << '*';
 		}
 		else {
-			std::cout << '.';
+			out << '.';
 		}
-		std::cout << ' ';
+		out << ' ';
 	}
+	out << Qt::endl;
 }
 
 void TUIView::displayCurrentPlayer(Player player)
 {
-	std::cout << "\nCurrent Player: " << (player == Player::BLACK ? "Black" : "White") << "\n";
+	QTextStream out(stdout);
+	out << "\nCurrent Player: " << (player == Player::BLACK ? "Black" : "White") << Qt::endl;
 }
 
 void TUIView::displayScore(const OthelloBoard& board)
 {
+	QTextStream out(stdout);
 	size_t blackScore = std::get<0>(board.getScore());
 	size_t whiteScore = std::get<1>(board.getScore());
-	std::cout << "Scores - Black: " << blackScore << ", White: " << whiteScore << "\n";
+	out << "Scores - Black: " << blackScore << ", White: " << whiteScore << Qt::endl;
 }
 
 
@@ -100,42 +99,38 @@ void TUIView::clearMessage()
 
 void TUIView::messageSkip(Player player)
 {
-	std::cout << "\n*** " << (player == Player::BLACK ? "Black" : "White")
+	QTextStream out(stdout);
+	out << "\n*** " << (player == Player::BLACK ? "Black" : "White")
 		<< " player has no valid moves and must skip their turn! ***\n\n";
 }
 
 
 ParsedCommand TUIView::parseCommandLineInput(const std::string& input)
 {
+	QStringList args = QString::fromStdString(input).split(' ');
+	m_parser.parse(args);
 	ParsedCommand command;
 	command.type = CommandType::INVALID; // Default to invalid command
 	command.moveIndex = std::nullopt; // Default to no move index
 	
-	std::string lowerInput = input;
-	std::transform(lowerInput.begin(), lowerInput.end(), lowerInput.begin(), ::tolower);
-
-	static const std::unordered_map<std::string, CommandType> commandMap = {
-		{"h", CommandType::HELP},
-		{"help", CommandType::HELP},
-		{"q", CommandType::QUIT},
-		{"quit", CommandType::QUIT},
-		{"s", CommandType::SAVE},
-		{"save", CommandType::SAVE},
-		{"l", CommandType::LOAD},
-		{"load", CommandType::LOAD},
-	};
-	auto it = commandMap.find(lowerInput);
-	if (lowerInput.size() == 2 &&
-		lowerInput[0] >= 'a' && lowerInput[0] <= 'h' &&
-		lowerInput[1] >= '1' && lowerInput[1] <= '8') {
-		command.type = CommandType::MOVE;
-		command.moveIndex = parseBoardPosition(lowerInput);
-	}
-	else if (it != commandMap.end()) {
-		command.type = it->second;
-	}
-	else {
-		command.type = CommandType::INVALID;
+	if (!args.isEmpty()) {
+		QString firstArg = args.first().toLower();
+		if (firstArg == "q" || firstArg == "quit") {
+			command.type = CommandType::QUIT;
+		}
+		else if (firstArg == "s" || firstArg == "save") {
+			command.type = CommandType::SAVE;
+		}
+		else if (firstArg == "l" || firstArg == "load") {
+			command.type = CommandType::LOAD;
+		}
+		else if (firstArg == "h" || firstArg == "help") {
+			command.type = CommandType::HELP;
+		}
+		else if (firstArg.size() == 2 && firstArg[0].isLetter() && firstArg[1].isDigit()) {
+			command.type = CommandType::MOVE;
+			command.moveIndex = parseBoardPosition(firstArg.toStdString());
+		}
 	}
 	return command;
 }
@@ -149,15 +144,16 @@ std::optional<size_t> TUIView::parseBoardPosition(const std::string& position)
 
 std::string TUIView::getPlayerInput()
 {
-	std::string input;
-	std::cout << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): ";
-	std::getline(std::cin, input);
-	return input;
+	QTextStream in(stdin);
+	QTextStream out(stdout);
+	out << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): " << Qt::flush;
+	return in.readLine().toStdString();
 }
 
 void TUIView::displayMessage() const
 {
 	if (!m_message.empty()) {
-		std::cout << "*** " << m_message << " ***\n\n";
+		QTextStream out(stdout);
+		out << "*** " << QString::fromStdString(m_message) << " ***\n\n";
 	}
 }

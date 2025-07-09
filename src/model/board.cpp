@@ -4,7 +4,6 @@ module;
 #include <immintrin.h>
 module board;
 
-
 /**
 * @brief Constructs the Othello board (8x8) with the initial setup. 
 * The initial setup places two black and two white pieces in the center of the board.
@@ -280,10 +279,6 @@ void OthelloBoard::AVX2_makeMove(Player player, size_t idx)
 	m_white = (player == Player::WHITE) ? playerPieces : opponentPieces;
 }
 
-void OthelloBoard::AVX512_makeMove(Player player, size_t idx)
-{
-
-}
 
 /**
 * @brief Checks if there are any valid moves for the player based on the generated moves.

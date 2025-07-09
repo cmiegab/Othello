@@ -45,7 +45,6 @@ public:
 
 	void makeMove(Player player, size_t idx);
 	void AVX2_makeMove(Player player, size_t idx);
-	void AVX512_makeMove(Player player, size_t idx);
 
 	[[nodiscard]] bool hasValidMove(const BitBoard& moves) const;
 	[[nodiscard]] bool isValidMove(const BitBoard& moves, size_t idx) const;
