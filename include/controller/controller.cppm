@@ -24,7 +24,6 @@ private:
 	void handleCommand(const ParsedCommand& command);
 	void makeMove(size_t idx);
 	void updateDisplay(const BitBoard& moves);
-	bool checkGameOver();
 
 	// Save and load methods
 	void saveGame();
