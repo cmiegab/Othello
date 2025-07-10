@@ -1,7 +1,5 @@
 module;
 #include <sqlite3.h>
-#include <string>
-#include <memory>
 export module db_repository;
 export import repository;
 
