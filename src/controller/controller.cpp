@@ -7,7 +7,7 @@ import repository;
 #include <QString>
 
 
-Controller::Controller(OthelloBoard& board, TUIView& view, std::unique_ptr<IRepository> repository) : m_board(board), m_view(view), m_repository(std::move(repository)), m_gameRunning(true)
+Controller::Controller(OthelloBoard& board, View& view, std::unique_ptr<IRepository> repository) : m_board(board), m_view(view), m_repository(std::move(repository)), m_gameRunning(true)
 {
 }
 

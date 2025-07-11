@@ -4,6 +4,7 @@
 import controller;
 import file_repository;
 import db_repository;
+import tui;
 
 int main() {
 	OthelloBoard board;

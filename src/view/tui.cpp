@@ -6,7 +6,7 @@ module;
 #include <optional>
 #include <string>
 #include <unordered_map>
-//#include <tuple>
+#include <tuple>
 module tui;
 
 TUIView::TUIView() {
@@ -151,6 +151,7 @@ QString TUIView::getPlayerInput()
 	out << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): " << Qt::flush;
 	return in.readLine();
 }
+
 
 void TUIView::displayMessage() const
 {
