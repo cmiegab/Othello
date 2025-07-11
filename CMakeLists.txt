@@ -13,6 +13,9 @@ project (
 
 
 find_package(Qt6 REQUIRED COMPONENTS Core Quick Gui)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 find_package(SQLite3 REQUIRED)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -51,7 +54,6 @@ target_sources(Othello
     FILE_SET CXX_MODULES FILES
       "include/model/board.cppm"
       "include/view/view.cppm"
-      "include/view/gui.cppm"
       "include/view/tui.cppm"
       "include/repository/repository.cppm"
       "include/repository/file_repository.cppm"
