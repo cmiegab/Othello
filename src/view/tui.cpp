@@ -65,9 +65,23 @@ void TUIView::displayScore(const OthelloBoard& board)
 	out << "Scores - Black: " << blackScore << ", White: " << whiteScore << Qt::endl;
 }
 
+void TUIView::clearScreen()
+{
+	std::system("cls"); // Use "cls" for Windows
+}
+
+void TUIView::updateDisplay(const OthelloBoard& board, const BitBoard& validMoves)
+{
+	displayMessage();
+	updateBoard(board, validMoves);
+	displayCurrentPlayer(board.getCurrentPlayer());
+	displayScore(board);
+}
+
 
 void TUIView::messageEndGame()
 {
+	clearScreen();
 	setMessage("Thanks for PLaying! Press any key to exit.");
 }
 
@@ -92,11 +106,6 @@ void TUIView::setMessage(const QString& message)
 	m_message = message;
 }
 
-void TUIView::clearMessage()
-{
-	m_message.clear();
-}
-
 void TUIView::messageSkip(Player player)
 {
 	QTextStream out(stdout);
@@ -107,7 +116,7 @@ void TUIView::messageSkip(Player player)
 
 ParsedCommand TUIView::parseCommandLineInput(const QString& input)
 {
-	clearMessage();
+	m_message.clear();
 	QStringList args = input.split(' ');
 	m_parser.parse(args);
 	ParsedCommand command;

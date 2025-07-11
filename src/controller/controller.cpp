@@ -26,15 +26,15 @@ void Controller::gameLoop()
 			validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 			if (!m_board.hasValidMove(validMoves)) {
 				m_gameRunning = false;
-                system("cls");
+				m_view.clearScreen();
                 m_view.displayScore(m_board);
 				break;
 			}
 		}
         if (!m_skipDisplayUpdate) {
-            system("cls");
+			m_view.clearScreen();
         }
-        updateDisplay(validMoves);
+		m_view.updateDisplay(m_board, validMoves);
 		QString input = m_view.getPlayerInput();
 		ParsedCommand command = m_view.parseCommandLineInput(input);
         m_skipDisplayUpdate = false;
@@ -51,7 +51,6 @@ void Controller::handleCommand(const ParsedCommand& command) {
 
     case CommandType::QUIT:
         m_gameRunning = false;
-		system("cls");
 		m_view.messageEndGame();
         break;
 
@@ -93,17 +92,6 @@ void Controller::makeMove(size_t idx) {
 
     // Switch to the other player
     m_board.switchPlayer();
-}
-
-void Controller::updateDisplay(const BitBoard& moves) {
-    // Display the board
-	m_view.displayMessage();
-    m_view.updateBoard(m_board, moves);
-	// Display the current player
-	m_view.displayCurrentPlayer(m_board.getCurrentPlayer());
-    // Display current scores
-    m_view.displayScore(m_board);
-    
 }
 
 void Controller::saveGame()

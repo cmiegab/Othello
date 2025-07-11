@@ -23,7 +23,6 @@ private:
 	void gameLoop();
 	void handleCommand(const ParsedCommand& command);
 	void makeMove(size_t idx);
-	void updateDisplay(const BitBoard& moves);
 
 	// Save and load methods
 	void saveGame();

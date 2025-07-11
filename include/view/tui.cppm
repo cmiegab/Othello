@@ -22,7 +22,8 @@ public:
 	void messageInvalidInput() override;
 	void setMessage(const QString& message) override;
 	void displayMessage() const override;
-	void clearMessage() override;
+	void clearScreen() override;
+	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
 	ParsedCommand parseCommandLineInput(const QString& input) override;
 	std::optional<size_t> parseBoardPosition(const QString& position) override;
 	QString getPlayerInput() override;
