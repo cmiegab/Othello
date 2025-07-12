@@ -28,6 +28,7 @@ public:
 	std::optional<size_t> parseBoardPosition(const QString& position) override;
 	QString getPlayerInput() override;
 private:
+	bool m_showHelp = false;
 	QCommandLineParser m_parser;
 	QString m_message; // Used to store messages for display
 };

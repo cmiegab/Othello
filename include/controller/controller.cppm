@@ -18,7 +18,6 @@ private:
 	View& m_view;
 	std::unique_ptr<IRepository> m_repository;
 	bool m_gameRunning;
-	bool m_skipDisplayUpdate = false;
 
 	void gameLoop();
 	void handleCommand(const ParsedCommand& command);

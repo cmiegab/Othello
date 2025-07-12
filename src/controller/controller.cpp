@@ -26,18 +26,13 @@ void Controller::gameLoop()
 			validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 			if (!m_board.hasValidMove(validMoves)) {
 				m_gameRunning = false;
-				m_view.clearScreen();
                 m_view.displayScore(m_board);
 				break;
 			}
 		}
-        if (!m_skipDisplayUpdate) {
-			m_view.clearScreen();
-        }
 		m_view.updateDisplay(m_board, validMoves);
 		QString input = m_view.getPlayerInput();
 		ParsedCommand command = m_view.parseCommandLineInput(input);
-        m_skipDisplayUpdate = false;
 		handleCommand(command);
 	}
 }
@@ -45,10 +40,7 @@ void Controller::gameLoop()
 void Controller::handleCommand(const ParsedCommand& command) {
     switch (command.type) {
     case CommandType::HELP:
-        m_view.showHelp();
-		m_skipDisplayUpdate = true;
         break;
-
     case CommandType::QUIT:
         m_gameRunning = false;
 		m_view.messageEndGame();

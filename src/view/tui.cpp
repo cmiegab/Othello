@@ -72,10 +72,15 @@ void TUIView::clearScreen()
 
 void TUIView::updateDisplay(const OthelloBoard& board, const BitBoard& validMoves)
 {
+	clearScreen();
 	displayMessage();
 	updateBoard(board, validMoves);
 	displayCurrentPlayer(board.getCurrentPlayer());
 	displayScore(board);
+	if (m_showHelp) {
+		showHelp();
+		m_showHelp = false; 
+	}
 }
 
 
@@ -136,6 +141,7 @@ ParsedCommand TUIView::parseCommandLineInput(const QString& input)
 		}
 		else if (firstArg == "h" || firstArg == "help") {
 			command.type = CommandType::HELP;
+			m_showHelp = true;
 		}
 		else if (firstArg.size() == 2 && firstArg[0].isLetter() && firstArg[1].isDigit()) {
 			command.type = CommandType::MOVE;
