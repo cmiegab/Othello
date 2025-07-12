@@ -87,29 +87,14 @@ void TUIView::updateDisplay(const OthelloBoard& board, const BitBoard& validMove
 void TUIView::messageEndGame()
 {
 	clearScreen();
-	setMessage("Thanks for PLaying! Press any key to exit.");
+	m_message = "Thanks for Playing! Press any key to exit";
 }
 
-void TUIView::messageSavingGame()
+void TUIView::invalidMove()
 {
-	setMessage("Saving game state");
+	m_message = "Invalid move! Please try again.";
 }
 
-void TUIView::messageLoadGame()
-{
-	setMessage("Game state loaded");
-}
-
-
-void TUIView::messageInvalidInput()
-{
-	setMessage("Invalid input! Please try again.");
-}
-
-void TUIView::setMessage(const QString& message)
-{
-	m_message = message;
-}
 
 void TUIView::messageSkip(Player player)
 {
@@ -132,21 +117,32 @@ ParsedCommand TUIView::parseCommandLineInput(const QString& input)
 		QString firstArg = args.first().toLower();
 		if (firstArg == "q" || firstArg == "quit") {
 			command.type = CommandType::QUIT;
+			messageEndGame();
 		}
 		else if (firstArg == "s" || firstArg == "save") {
 			command.type = CommandType::SAVE;
+			m_message = "Saving game state";
 		}
 		else if (firstArg == "l" || firstArg == "load") {
 			command.type = CommandType::LOAD;
+			m_message = "Game state loaded";
 		}
 		else if (firstArg == "h" || firstArg == "help") {
 			command.type = CommandType::HELP;
 			m_showHelp = true;
 		}
-		else if (firstArg.size() == 2 && firstArg[0].isLetter() && firstArg[1].isDigit()) {
-			command.type = CommandType::MOVE;
-			command.moveIndex = parseBoardPosition(firstArg);
-			setMessage(" set position " + firstArg.toUpper());
+		else if (firstArg.size() == 2) {
+			if (isValidBoardPosition(firstArg)) {
+				command.type = CommandType::MOVE;
+				command.moveIndex = parseBoardPosition(firstArg);
+				m_message = "set position " + firstArg.toUpper();
+			}
+			else {
+				m_message = "Invalid board position: " + firstArg;
+			}
+		}
+		else {
+			m_message = "Invalid command: " + firstArg;
 		}
 	}
 	return command;
@@ -165,6 +161,17 @@ QString TUIView::getPlayerInput()
 	QTextStream out(stdout);
 	out << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): " << Qt::flush;
 	return in.readLine();
+}
+
+bool TUIView::isValidBoardPosition(const QString& position) const
+{
+	if (position[0].isLetter() && position[1].isDigit()) {
+		size_t col = static_cast<size_t>(position[0].toLower().unicode() - 'a');
+		size_t row = static_cast<size_t>(position[1].digitValue() - 1);
+		return (col >= 0 && col < BITBOARD_WIDTH) && (row >= 0 && row < BITBOARD_WIDTH);
+	}
+
+	return false;
 }
 
 

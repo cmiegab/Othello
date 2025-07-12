@@ -39,32 +39,22 @@ void Controller::gameLoop()
 
 void Controller::handleCommand(const ParsedCommand& command) {
     switch (command.type) {
-    case CommandType::HELP:
-        break;
     case CommandType::QUIT:
         m_gameRunning = false;
 		m_view.messageEndGame();
         break;
-
     case CommandType::SAVE:
 		saveGame();
         break;
-
     case CommandType::LOAD:
 		loadGame();
         break;
-
     case CommandType::MOVE:
         if (command.moveIndex.has_value()) {
             makeMove(command.moveIndex.value());
         }
-        else {
-			m_view.messageInvalidInput();
-        }
         break;
-
-    case CommandType::INVALID:
-        m_view.messageInvalidInput();
+    default:
         break;
     }
 }
@@ -75,7 +65,7 @@ void Controller::makeMove(size_t idx) {
 
     // Check if the move is valid
     if (!m_board.isValidMove(validMoves, idx)) {
-		m_view.messageInvalidInput();
+		m_view.invalidMove();
         return;
     }
 
@@ -88,14 +78,12 @@ void Controller::makeMove(size_t idx) {
 
 void Controller::saveGame()
 {
-    m_view.messageSavingGame();
     GameState state = getCurrentGameState();
     m_repository->saveGame(state);
 }
 
 void Controller::loadGame()
 {
-    m_view.messageLoadGame();
     GameState state = m_repository->loadGame();
     setGameState(state);
 }

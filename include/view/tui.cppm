@@ -17,10 +17,7 @@ public:
 	void displayScore(const OthelloBoard& board) override;
 	void messageSkip(Player player) override;
 	void messageEndGame() override;
-	void messageSavingGame() override;
-	void messageLoadGame() override;
-	void messageInvalidInput() override;
-	void setMessage(const QString& message) override;
+	void invalidMove() override;
 	void displayMessage() const override;
 	void clearScreen() override;
 	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
@@ -28,6 +25,7 @@ public:
 	std::optional<size_t> parseBoardPosition(const QString& position) override;
 	QString getPlayerInput() override;
 private:
+	bool isValidBoardPosition(const QString& position) const;
 	bool m_showHelp = false;
 	QCommandLineParser m_parser;
 	QString m_message; // Used to store messages for display

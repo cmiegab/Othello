@@ -26,10 +26,7 @@ public:
 	virtual void displayScore(const OthelloBoard& board) = 0;
 	virtual void messageSkip(Player player) = 0;
 	virtual void messageEndGame() = 0;
-	virtual void messageSavingGame() = 0;
-	virtual void messageLoadGame() = 0;
-	virtual void messageInvalidInput() = 0;
-	virtual void setMessage(const QString& message) = 0;
+	virtual void invalidMove() = 0;
 	virtual void displayMessage() const = 0;
 	virtual void clearScreen() = 0;
 	virtual void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) = 0;
