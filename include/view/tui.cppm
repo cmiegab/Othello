@@ -5,10 +5,14 @@ module;
 #include <QTextStream>
 #include <optional>
 #include <string>
+#include <QWinEventNotifier>
+#include <Windows.h>
+#include <QObject>
 export module tui;
 export import view;
 
-export class TUIView: public View {
+export class TUIView: public QObject , public View  {
+	Q_OBJECT
 public:
 	TUIView();
 	void showHelp() override;
@@ -23,11 +27,20 @@ public:
 	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
 	ParsedCommand parseCommandLineInput(const QString& input) override;
 	std::optional<size_t> parseBoardPosition(const QString& position) override;
-	QString getPlayerInput() override;
+
+signals:
+	void inputReady();
+	void commandParsed(const ParsedCommand& command);
+
+private slots:
+	void onInputReady();
+
 private:
+	QWinEventNotifier* m_notifier = nullptr;
 	bool isValidBoardPosition(const QString& position) const;
 	bool m_showHelp = false;
 	QCommandLineParser m_parser;
 	QString m_message; // Used to store messages for display
 };
 
+#include "tui.moc"

@@ -3,10 +3,13 @@ module;
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QString>
+#include <QObject>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <tuple>
+#include <QWinEventNotifier>
+#include <Windows.h>
 module tui;
 
 TUIView::TUIView() {
@@ -16,6 +19,20 @@ TUIView::TUIView() {
 	m_parser.addOption({ {"s", "save"}, "Save the game state." });
 	m_parser.addOption({ {"l", "load"}, "Load a saved game state." });
 	m_parser.addPositionalArgument("move", "Enter a move in the format 'A1', 'B2', etc.");
+	
+	m_notifier = new QWinEventNotifier(GetStdHandle(STD_INPUT_HANDLE));
+	connect(m_notifier, &QWinEventNotifier::activated, this, &TUIView::onInputReady);
+	m_notifier->setEnabled(true); // Enable the notifier to start listening for input
+
+}
+
+void TUIView::onInputReady() {
+	m_notifier->setEnabled(false); // Disable the notifier to prevent re-entrancy
+	QTextStream in(stdin);
+	ParsedCommand command = parseCommandLineInput(in.readLine());
+	emit inputReady(); // Emit signal to notify that input is ready
+	emit commandParsed(command); // Emit the parsed command
+	m_notifier->setEnabled(true); // Re-enable the notifier for future input
 }
 
 void TUIView::showHelp() {
@@ -77,6 +94,8 @@ void TUIView::updateDisplay(const OthelloBoard& board, const BitBoard& validMove
 	updateBoard(board, validMoves);
 	displayCurrentPlayer(board.getCurrentPlayer());
 	displayScore(board);
+	QTextStream out(stdout);
+	out << "Enter your move (e.g., A1, B2) or command (q, s, l): ";
 	if (m_showHelp) {
 		showHelp();
 		m_showHelp = false; 
@@ -155,14 +174,6 @@ std::optional<size_t> TUIView::parseBoardPosition(const QString& position)
 	return (row * BITBOARD_WIDTH + col); // Calculate the bit index
 }
 
-QString TUIView::getPlayerInput()
-{
-	QTextStream in(stdin);
-	QTextStream out(stdout);
-	out << "Enter your move (e.g., A1, B2) or command (h for help, q to quit): " << Qt::flush;
-	return in.readLine();
-}
-
 bool TUIView::isValidBoardPosition(const QString& position) const
 {
 	if (position[0].isLetter() && position[1].isDigit()) {
@@ -182,3 +193,5 @@ void TUIView::displayMessage() const
 		out << "*** " << m_message << " ***\n\n";
 	}
 }
+
+//#include "tui.moc"

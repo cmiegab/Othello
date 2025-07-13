@@ -32,6 +32,5 @@ public:
 	virtual void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) = 0;
 	virtual ParsedCommand parseCommandLineInput(const QString& input) = 0;
 	virtual std::optional<size_t> parseBoardPosition(const QString& position) = 0;
-	virtual QString getPlayerInput() = 0;
 	virtual ~View() = default;
 };

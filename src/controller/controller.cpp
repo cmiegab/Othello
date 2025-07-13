@@ -1,43 +1,50 @@
-import controller;
-import board;
-import tui;
-import repository;
+module;
 #include <iostream>
 #include <optional>
 #include <QString>
-
+#include <QObject>
+import board;
+import tui;
+import repository;
+module controller;
 
 Controller::Controller(OthelloBoard& board, View& view, std::unique_ptr<IRepository> repository) : m_board(board), m_view(view), m_repository(std::move(repository)), m_gameRunning(true)
 {
+    // Connect to TUIView signals if it's a TUIView
+    if (TUIView* tuiView = dynamic_cast<TUIView*>(&m_view)) {
+        QObject::connect(tuiView, &TUIView::commandParsed, this, &Controller::onCommandReceived);
+    }
 }
 
-void Controller::startGame()
+void Controller::initializeGame()
 {
-	gameLoop();
+    updateGameState();
+    QCoreApplication::exec();
 }
 
-void Controller::gameLoop()
+void Controller::updateGameState()
 {
-	while (m_gameRunning) {
-		BitBoard validMoves = m_board.genMoves(m_board.getCurrentPlayer());
+    if (!m_gameRunning) {
+        QCoreApplication::quit();
+        return;
+    }
+	BitBoard validMoves = m_board.genMoves(m_board.getCurrentPlayer());
+	if (!m_board.hasValidMove(validMoves)) {
+		m_view.messageSkip(m_board.getCurrentPlayer());
+		m_board.switchPlayer();
+		validMoves = m_board.genMoves(m_board.getCurrentPlayer());
 		if (!m_board.hasValidMove(validMoves)) {
-			m_view.messageSkip(m_board.getCurrentPlayer());
-			m_board.switchPlayer();
-			validMoves = m_board.genMoves(m_board.getCurrentPlayer());
-			if (!m_board.hasValidMove(validMoves)) {
-				m_gameRunning = false;
-                m_view.displayScore(m_board);
-				break;
-			}
+			m_gameRunning = false;
+            m_view.displayScore(m_board);
+            m_view.messageEndGame();
+            QCoreApplication::quit();
+            return;
 		}
-		m_view.updateDisplay(m_board, validMoves);
-		QString input = m_view.getPlayerInput();
-		ParsedCommand command = m_view.parseCommandLineInput(input);
-		handleCommand(command);
 	}
+	m_view.updateDisplay(m_board, validMoves);
 }
 
-void Controller::handleCommand(const ParsedCommand& command) {
+void Controller::onCommandReceived(const ParsedCommand& command) {
     switch (command.type) {
     case CommandType::QUIT:
         m_gameRunning = false;
@@ -57,6 +64,7 @@ void Controller::handleCommand(const ParsedCommand& command) {
     default:
         break;
     }
+	updateGameState();
 }
 
 void Controller::makeMove(size_t idx) {
@@ -68,7 +76,6 @@ void Controller::makeMove(size_t idx) {
 		m_view.invalidMove();
         return;
     }
-
     // Make the move
     m_board.makeMove(m_board.getCurrentPlayer(), idx);
 
@@ -102,3 +109,5 @@ void Controller::setGameState(const GameState& state) const
 	m_board.setCurrentPlayer(state.currentPlayer);
 	m_board.setState(state.blackPieces, state.whitePieces);
 }
+
+//#include "controller.moc"
