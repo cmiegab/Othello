@@ -54,6 +54,7 @@ target_sources(Othello
     FILE_SET CXX_MODULES FILES
       "include/model/board.cppm"
       "include/view/view.cppm"
+      "include/view/gui.cppm"
       "include/view/tui.cppm"
       "include/repository/repository.cppm"
       "include/repository/file_repository.cppm"

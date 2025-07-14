@@ -23,7 +23,7 @@ public:
 	void messageEndGame() override;
 	void invalidMove() override;
 	void displayMessage() const override;
-	void clearScreen() override;
+	void clearScreen();
 	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
 	ParsedCommand parseCommandLineInput(const QString& input) override;
 	std::optional<size_t> parseBoardPosition(const QString& position) override;

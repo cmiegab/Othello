@@ -28,7 +28,6 @@ public:
 	virtual void messageEndGame() = 0;
 	virtual void invalidMove() = 0;
 	virtual void displayMessage() const = 0;
-	virtual void clearScreen() = 0;
 	virtual void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) = 0;
 	virtual ParsedCommand parseCommandLineInput(const QString& input) = 0;
 	virtual std::optional<size_t> parseBoardPosition(const QString& position) = 0;
