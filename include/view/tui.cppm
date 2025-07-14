@@ -11,22 +11,22 @@ module;
 export module tui;
 export import view;
 
-export class TUIView: public QObject , public View  {
+export class TUIView: public View  {
 	Q_OBJECT
 public:
 	TUIView();
-	void showHelp() override;
-	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves) override;
-	void displayCurrentPlayer(Player player) override;
+	void showHelp();
+	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves);
+	void displayCurrentPlayer(Player player);
 	void displayScore(const OthelloBoard& board) override;
 	void messageSkip(Player player) override;
 	void messageEndGame() override;
 	void invalidMove() override;
-	void displayMessage() const override;
+	void displayMessage() const;
 	void clearScreen();
 	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
-	ParsedCommand parseCommandLineInput(const QString& input) override;
-	std::optional<size_t> parseBoardPosition(const QString& position) override;
+	void parseCommandLineInput(const QString& input);
+	std::optional<size_t> parseBoardPosition(const QString& position);
 
 signals:
 	void inputReady();

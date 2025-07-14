@@ -16,8 +16,11 @@ public:
 	Controller(OthelloBoard& board, View& view, std::unique_ptr<IRepository> repository);
 	void initializeGame();
 
-public slots:
-	void onCommandReceived(const ParsedCommand& command);
+private slots:
+	void onSaveRequested();
+	void onLoadRequested();
+	void onMoveRequest(size_t idx);
+	void onQuitRequested();
 
 private:
 	OthelloBoard& m_board;
@@ -28,9 +31,6 @@ private:
 	void updateGameState();
 	void makeMove(size_t idx);
 
-	// Save and load methods
-	void saveGame();
-	void loadGame();
 	GameState getCurrentGameState() const;
 	void setGameState(const GameState& state) const;
 

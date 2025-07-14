@@ -3,17 +3,18 @@ module;
 #include <optional>
 #include <QString>
 #include <QObject>
+#include <QCoreApplication>
 import board;
-import tui;
+import view;
 import repository;
 module controller;
 
 Controller::Controller(OthelloBoard& board, View& view, std::unique_ptr<IRepository> repository) : m_board(board), m_view(view), m_repository(std::move(repository)), m_gameRunning(true)
 {
-    // Connect to TUIView signals if it's a TUIView
-    if (TUIView* tuiView = dynamic_cast<TUIView*>(&m_view)) {
-        QObject::connect(tuiView, &TUIView::commandParsed, this, &Controller::onCommandReceived);
-    }
+	QObject::connect(&m_view, &View::quitRequested, this, &Controller::onQuitRequested);
+	QObject::connect(&m_view, &View::saveRequested, this, &Controller::onSaveRequested);
+	QObject::connect(&m_view, &View::loadRequested, this, &Controller::onLoadRequested);
+	QObject::connect(&m_view, &View::moveRequested, this, &Controller::onMoveRequest);
 }
 
 void Controller::initializeGame()
@@ -44,28 +45,6 @@ void Controller::updateGameState()
 	m_view.updateDisplay(m_board, validMoves);
 }
 
-void Controller::onCommandReceived(const ParsedCommand& command) {
-    switch (command.type) {
-    case CommandType::QUIT:
-        m_gameRunning = false;
-		m_view.messageEndGame();
-        break;
-    case CommandType::SAVE:
-		saveGame();
-        break;
-    case CommandType::LOAD:
-		loadGame();
-        break;
-    case CommandType::MOVE:
-        if (command.moveIndex.has_value()) {
-            makeMove(command.moveIndex.value());
-        }
-        break;
-    default:
-        break;
-    }
-	updateGameState();
-}
 
 void Controller::makeMove(size_t idx) {
     // Generate valid moves for current player
@@ -83,16 +62,29 @@ void Controller::makeMove(size_t idx) {
     m_board.switchPlayer();
 }
 
-void Controller::saveGame()
+void Controller::onSaveRequested()
 {
     GameState state = getCurrentGameState();
     m_repository->saveGame(state);
+    updateGameState();
 }
 
-void Controller::loadGame()
+void Controller::onLoadRequested()
 {
     GameState state = m_repository->loadGame();
     setGameState(state);
+    updateGameState();
+}
+
+void Controller::onMoveRequest(size_t idx) {
+    makeMove(idx);
+    updateGameState();
+}
+
+void Controller::onQuitRequested() {
+    m_gameRunning = false;
+    m_view.messageEndGame();
+    updateGameState();
 }
 
 GameState Controller::getCurrentGameState() const
@@ -109,5 +101,3 @@ void Controller::setGameState(const GameState& state) const
 	m_board.setCurrentPlayer(state.currentPlayer);
 	m_board.setState(state.blackPieces, state.whitePieces);
 }
-
-//#include "controller.moc"

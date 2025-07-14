@@ -29,9 +29,8 @@ TUIView::TUIView() {
 void TUIView::onInputReady() {
 	m_notifier->setEnabled(false); // Disable the notifier to prevent re-entrancy
 	QTextStream in(stdin);
-	ParsedCommand command = parseCommandLineInput(in.readLine());
+	parseCommandLineInput(in.readLine());
 	emit inputReady(); // Emit signal to notify that input is ready
-	emit commandParsed(command); // Emit the parsed command
 	m_notifier->setEnabled(true); // Re-enable the notifier for future input
 }
 
@@ -123,38 +122,49 @@ void TUIView::messageSkip(Player player)
 }
 
 
-ParsedCommand TUIView::parseCommandLineInput(const QString& input)
+void TUIView::parseCommandLineInput(const QString& input)
 {
 	m_message.clear();
 	QStringList args = input.split(' ');
 	m_parser.parse(args);
-	ParsedCommand command;
-	command.type = CommandType::INVALID; // Default to invalid command
-	command.moveIndex = std::nullopt; // Default to no move index
+	//ParsedCommand command;
+	//command.type = CommandType::INVALID; // Default to invalid command
+	//command.moveIndex = std::nullopt; // Default to no move index
 	
 	if (!args.isEmpty()) {
 		QString firstArg = args.first().toLower();
 		if (firstArg == "q" || firstArg == "quit") {
-			command.type = CommandType::QUIT;
+			//command.type = CommandType::QUIT;
 			messageEndGame();
+			emit quitRequested(); // Emit signal to notify that quit was requested
+			return; // Return early to avoid further processing
 		}
 		else if (firstArg == "s" || firstArg == "save") {
-			command.type = CommandType::SAVE;
+			//command.type = CommandType::SAVE;
 			m_message = "Saving game state";
+			emit saveRequested(); // Emit signal to notify that save was requested
+			return; // Return early to avoid further processing
 		}
 		else if (firstArg == "l" || firstArg == "load") {
-			command.type = CommandType::LOAD;
+			//command.type = CommandType::LOAD;
 			m_message = "Game state loaded";
+			emit loadRequested(); // Emit signal to notify that load was requested
+			return;
 		}
 		else if (firstArg == "h" || firstArg == "help") {
-			command.type = CommandType::HELP;
+			//command.type = CommandType::HELP;
 			m_showHelp = true;
+			return; // Return early to avoid further processing
 		}
 		else if (firstArg.size() == 2) {
 			if (isValidBoardPosition(firstArg)) {
-				command.type = CommandType::MOVE;
-				command.moveIndex = parseBoardPosition(firstArg);
 				m_message = "set position " + firstArg.toUpper();
+				//command.type = CommandType::MOVE;
+				auto idx = parseBoardPosition(firstArg);
+				if (idx.has_value()) {
+					emit moveRequested(idx.value());
+				}
+				return; // Return early after processing a valid move
 			}
 			else {
 				m_message = "Invalid board position: " + firstArg;
@@ -164,7 +174,8 @@ ParsedCommand TUIView::parseCommandLineInput(const QString& input)
 			m_message = "Invalid command: " + firstArg;
 		}
 	}
-	return command;
+	//emit commandParsed(command); // Emit the parsed command
+	//return command;
 }
 
 std::optional<size_t> TUIView::parseBoardPosition(const QString& position)
