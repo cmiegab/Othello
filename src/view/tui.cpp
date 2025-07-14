@@ -24,6 +24,7 @@ TUIView::TUIView() {
 	connect(m_notifier, &QWinEventNotifier::activated, this, &TUIView::onInputReady);
 	m_notifier->setEnabled(true); // Enable the notifier to start listening for input
 
+	connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &TUIView::messageEndGame);
 }
 
 void TUIView::onInputReady() {
@@ -105,7 +106,9 @@ void TUIView::updateDisplay(const OthelloBoard& board, const BitBoard& validMove
 void TUIView::messageEndGame()
 {
 	clearScreen();
+	displayScore(OthelloBoard());
 	m_message = "Thanks for Playing! Press any key to exit";
+	displayMessage();
 }
 
 void TUIView::invalidMove()

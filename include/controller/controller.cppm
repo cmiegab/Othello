@@ -20,16 +20,13 @@ private slots:
 	void onSaveRequested();
 	void onLoadRequested();
 	void onMoveRequest(size_t idx);
-	void onQuitRequested();
 
 private:
 	OthelloBoard& m_board;
 	View& m_view;
 	std::unique_ptr<IRepository> m_repository;
-	bool m_gameRunning;
 
 	void updateGameState();
-	void makeMove(size_t idx);
 
 	GameState getCurrentGameState() const;
 	void setGameState(const GameState& state) const;
