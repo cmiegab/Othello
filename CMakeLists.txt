@@ -16,6 +16,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core Quick Gui)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+qt_add_resources(RESOURCES Resource.qrc)
+#qt_add_executable(Othello.cpp)
+
 find_package(SQLite3 REQUIRED)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -68,6 +71,7 @@ target_sources(Othello
         src/repository/db_repository.cpp 
         src/repository/file_repository.cpp
         othello.cpp
+        ${RESOURCES}
 )
 
 

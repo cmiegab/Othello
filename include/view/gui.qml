@@ -50,12 +50,12 @@ ApplicationWindow {
             Text {
                 id: messageText
                 anchors.centerIn: parent
-                text: guiView.currentMessage
+                text: "guiView.currentMessage"
                 font.pointSize: 12
                 wrapMode: Text.WordWrap
             }
         }
-        
+/*
         // Game board grid
         Rectangle {
             Layout.fillWidth: true
@@ -133,6 +133,7 @@ ApplicationWindow {
                 }
             }
         }
+*/
         
         // Current player indicator
         Rectangle {

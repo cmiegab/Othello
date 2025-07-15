@@ -20,7 +20,7 @@ Controller::Controller(OthelloBoard& board, View& view, std::unique_ptr<IReposit
 void Controller::initializeGame()
 {
     updateGameState();
-    QCoreApplication::exec();
+    //QCoreApplication::exec();
 }
 
 void Controller::updateGameState()

@@ -15,22 +15,22 @@ export class TUIView: public View  {
 	Q_OBJECT
 public:
 	TUIView();
-	void showHelp();
-	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves);
-	void displayCurrentPlayer(Player player);
-	void displayScore(const OthelloBoard& board) override;
 	void messageSkip(Player player) override;
-	void messageEndGame() override;
 	void invalidMove() override;
+	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
+
+	void displayCurrentPlayer(Player player);
+	void displayScore(const OthelloBoard& board);
+	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves);
+	void showHelp();
 	void displayMessage() const;
 	void clearScreen();
-	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
 	void parseCommandLineInput(const QString& input);
 	std::optional<size_t> parseBoardPosition(const QString& position);
+	void messageEndGame();
 
 signals:
 	void inputReady();
-	void commandParsed(const ParsedCommand& command);
 
 private slots:
 	void onInputReady();

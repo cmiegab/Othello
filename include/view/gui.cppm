@@ -1,29 +1,35 @@
 module;
-#include <iostream>
-#include <optional>
-#include <QString>
+#include <QObject>
 export module gui;
 export import view;
 
 export class GUIView : public View {
+	Q_OBJECT
+	Q_PROPERTY(Player currentPlayer READ getCurrentPlayer NOTIFY currentPlayerChanged)
+	Q_PROPERTY(size_t blackScore READ getBlackScore NOTIFY scoreChanged)
+	Q_PROPERTY(size_t whiteScore READ getWhiteScore NOTIFY scoreChanged)
 public:
-	void showHelp() override;
-	void updateBoard(const OthelloBoard& board, const BitBoard& validMoves) override;
-	void displayCurrentPlayer(Player player) override;
-	void displayScore(const OthelloBoard& board) override;
+	GUIView();
+	//Getters
+	size_t getBlackScore() const { return m_blackScore; }
+	size_t getWhiteScore() const { return m_whiteScore; }
+	Player getCurrentPlayer() const { return m_currentPlayer; }
+
 	void messageSkip(Player player) override;
-	void messageEndGame() override;
-	void messageSavingGame() override;
-	void messageLoadGame() override;
-	void messageInvalidInput() override;
-	void setMessage(const QString& message) override;
-	void displayMessage() const override;
-	void clearMessage() override;
-	ParsedCommand parseCommandLineInput(const QString& input) override;
-	std::optional<size_t> parseBoardPosition(const QString& position) override;
-	QString getPlayerInput() override;
-	~GUIView() override = default;
+	void invalidMove() override;
+	void updateDisplay(const OthelloBoard& board, const BitBoard& validMoves) override;
+
+	Q_INVOKABLE void saveGame();
+	Q_INVOKABLE void loadGame();
+
+signals:
+	void scoreChanged();
+	void currentPlayerChanged();
+
 private:
-	QString m_message; // Used to store messages for display
+	Player m_currentPlayer{};
+	size_t m_blackScore{};
+	size_t m_whiteScore{};
 };
 
+#include "gui.moc" 
