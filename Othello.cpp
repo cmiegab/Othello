@@ -3,6 +3,7 @@
 #include <memory>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 import controller;
 import file_repository;
 import db_repository;
@@ -19,6 +20,7 @@ int main(int argc, char* argv[]) {
 	Controller controller(board, view, std::move(repository));
 
 	QQmlApplicationEngine engine;
+	engine.rootContext()->setContextProperty("guiView", &view);
 	engine.load(QUrl(QStringLiteral("qrc:/include/view/gui.qml")));
 	controller.initializeGame();
 	return app.exec();

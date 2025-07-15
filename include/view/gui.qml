@@ -146,7 +146,7 @@ ApplicationWindow {
             
             Text {
                 anchors.centerIn: parent
-                text: "Current Player: " + (guiView.currentPlayer === 0 ? "Black" : "White")
+                text: "Current Player: " + (guiView.currentPlayer === 0 ? "White" : "Black")
                 font.pointSize: 14
                 font.bold: true
             }
