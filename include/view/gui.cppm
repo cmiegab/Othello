@@ -21,6 +21,10 @@ public:
 
 	Q_INVOKABLE void saveGame();
 	Q_INVOKABLE void loadGame();
+	Q_INVOKABLE bool hasBlackPiece(int index) const;
+	Q_INVOKABLE bool hasWhitePiece(int index) const;
+	Q_INVOKABLE bool isValidMove(int index) const;
+	Q_INVOKABLE void makeMove(int index);
 
 signals:
 	void scoreChanged();
@@ -30,6 +34,9 @@ private:
 	Player m_currentPlayer{};
 	size_t m_blackScore{};
 	size_t m_whiteScore{};
+	uint64_t m_blackPieces{};
+	uint64_t m_whitePieces{};
+	uint64_t m_validMoves{};
 };
 
 #include "gui.moc" 

@@ -55,7 +55,7 @@ ApplicationWindow {
                 wrapMode: Text.WordWrap
             }
         }
-/*
+
         // Game board grid
         Rectangle {
             Layout.fillWidth: true
@@ -133,7 +133,7 @@ ApplicationWindow {
                 }
             }
         }
-*/
+
         
         // Current player indicator
         Rectangle {
